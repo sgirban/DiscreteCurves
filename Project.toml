@@ -1,0 +1,18 @@
+name = "DiscreteCurves"
+uuid = "2b90aa70-f385-491d-b8bc-e0c6352fe111"
+version = "0.1.0"
+authors = ["sgirban <savagirban@gmail.com>"]
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
+[compat]
+LinearAlgebra = "1.12.0"
+StaticArrays = "1.9.18"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f2afa"
+
+[targets]
+test = ["Test"]
