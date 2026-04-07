@@ -27,6 +27,8 @@ Base.eltype(it::VertexIterator{C}) where {C} = eltype(it.curve)
 
 Base.iterate(it::VertexIterator, state=1) = state > nvertices(it.curve) ? nothing : (vertex(it.curve, state), state + 1)
 
+Base.filter(f::Function, it::VertexIterator) = [v for v in it if f(v)]
+
 # ── EdgeIterator ───────────────────────────────────────────────────────────────
 #
 struct EdgeIterator{C<:AbstractDiscreteCurve}
