@@ -17,7 +17,9 @@ print("Cumulative length: ", cumulative_length(c), "\n")
 print("Turning angles: ", turning_angles(c, signed=true), "\n")
 print("Errors: ", turning_angles(c, signed=true) .- [π/2, π/2, π/2, π/2], "\n")
 
-
+print("Curvatures (TurningAngle): ", curvatures(c, TurningAngle()), "\n")
+print("Curvatures (SteinerCurvature): ", curvatures(c, SteinerCurvature()), "\n")
+print("Curvatures (LengthWeightedCurvature): ", curvatures(c, LengthWeightedCurvature()), "\n")   
 # d = DiscreteCurve(@select p in c: p[1] > 0, closed=false)
 
 # for p in vertices(d)

@@ -3,7 +3,7 @@ module Curvature
     using StaticArrays
     using ..AbstractTypes, ..CurveTypes, ..CurveTopology, ..Iterators
 
-    export curvature, curvature_vector, turning_angle, turning_angles, CustomCurvature, TurningAngle, OsculatingCircle, SteinerCurvature, LengthWeightedCurvature, SignedCurvature2D
+    export curvature, curvatures, curvature_vector, turning_angle, turning_angles, CustomCurvature, TurningAngle, OsculatingCircle, TangentCurvature, SteinerCurvature, LengthWeightedCurvature, SignedCurvature2D
 
 """κ = θ / ℓ̄  — turning angle divided by mean half-length."""
 struct TurningAngle end
@@ -11,6 +11,15 @@ struct TurningAngle end
 """κ = 1/R  — inverse circumradius of the osculating circle."""
 struct OsculatingCircle end
 
+"""
+κ^C: `κᵢ = 2tan(|θᵢ|/2) / ℓ̄ᵢ`
+ 
+From Steiner parallel-offset formula with edge-extension gaps (eq 5, option C).
+Preserves the **Kirchhoff elastic-curve analogy**.
+Warning: blows up near straight-angle vertices (|θ| → π), which is physical
+(κ → ∞ at a cusp).
+"""
+struct TangentCurvature end
 """κ = 2·sin(θ/2) / ℓ̄  — DEC/Steiner curvature, O(h²) convergence."""
 struct SteinerCurvature end
 
@@ -45,194 +54,264 @@ end
 # ─────────────────────────────────────────────────────────────────────────────
 # Turning angle
 # ─────────────────────────────────────────────────────────────────────────────
- 
+@inline function _turning_angle_at(p::SVector{2,T}, q::SVector{2,T},
+                                    r::SVector{2,T}) where T
+    t1   = q - p
+    t2   = r - q
+    n1sq = t1[1]*t1[1] + t1[2]*t1[2] 
+    n2sq = t2[1]*t2[1] + t2[2]*t2[2]
+    (n1sq ≤ eps(T)^2 || n2sq ≤ eps(T)^2) && return zero(T)
+    atan(t1[1]*t2[2] - t1[2]*t2[1],
+         t1[1]*t2[1] + t1[2]*t2[2])
+end
+@inline function _turning_angle_at(p::SVector{3,T}, q::SVector{3,T},
+                                    r::SVector{3,T}) where T
+    t1   = q - p
+    t2   = r - q
+    n1sq = dot(t1, t1)
+    n2sq = dot(t2, t2)
+    (n1sq ≤ eps(T)^2 || n2sq ≤ eps(T)^2) && return zero(T)
+    atan(norm(t1 × t2), dot(t1, t2))
+end
+
+@inline function _turning_angle_at(p::SVector{N,T}, q::SVector{N,T},
+                                    r::SVector{N,T}) where {N,T}
+    t1 = q - p
+    t2 = r - q
+    a2 = dot(t1, t1)
+    b2 = dot(t2, t2)
+    (a2 ≤ eps(T)^2 || b2 ≤ eps(T)^2) && return zero(T)
+    ab   = dot(t1, t2)
+    gram = sqrt(max(zero(T), a2*b2 - ab^2))
+    atan(gram, ab)
+end
+
 """
     turning_angle(c, i; signed=false)  →  T
  
-Turning angle at interior vertex `i`.
-Default (signed=false): unsigned angle, range [0, π].
-If signed=true (2D only): signed angle, range [-π, π]. Positive = CCW.
-Uses atan2 internally for maximum numerical precision.
+Turning angle at vertex `i`.
+- `signed=false` (default): unsigned angle in [0, π].
+- `signed=true` (2D only): signed angle in (−π, π]. Positive = CCW.
  
 ```julia
-θ = turning_angle(c, 5)           # Unsigned
-θ_s = turning_angle(c, 5; signed=true)  # Signed (2D only)
+θ   = turning_angle(c, 5)
+θ_s = turning_angle(c, 5; signed=true)
 ```
 """
 function turning_angle(c::AbstractDiscreteCurve, i::Int; signed::Bool=false)
     θ = _turning_angle_at(vertex(c, i-1), vertex(c, i), vertex(c, i+1))
-    return signed ? θ : abs(θ)
+    signed ? θ : abs(θ)
 end
 
 """
     turning_angles(c; signed=false)  →  Vector{T}
  
-All turning angles. Closed curves: length n. Open curves: length n-2 (interior only).
-Default (signed=false): unsigned angles, range [0, π].
-If signed=true (2D only): signed angles, range [-π, π]. Sum ≈ ±2π for closed curves.
-Uses atan2 for maximum numerical precision.
-Pre-allocated, @inbounds, zero realloc. O(n).
-
-```julia
-θ = turning_angles(c)                    # Unsigned [0, π]
-θ_s = turning_angles(c; signed=true)     # Signed [-π, π] (2D only)
-```
+All turning angles. Length = nvertices for closed curves, nvertices-2 for open curves.
 """
 function turning_angles(c::AbstractDiscreteCurve{N,T}; signed::Bool=false) where {N,T}
     n_win = length(edge_windows(c; k=3))
     out   = Vector{T}(undef, n_win)
-    if signed && N == 2
-        # 2D: use signed angles directly
+    if signed
         @inbounds for (k, (prev, curr, next)) in enumerate(edge_windows(c; k=3))
             out[k] = _turning_angle_at(prev, curr, next)
         end
     else
-        # Default: unsigned (apply abs)
         @inbounds for (k, (prev, curr, next)) in enumerate(edge_windows(c; k=3))
             out[k] = abs(_turning_angle_at(prev, curr, next))
         end
     end
     out
 end
-
-@inline function _turning_angle_at(p::SVector{2,T}, q::SVector{2,T}, r::SVector{2,T}) where {T<:AbstractFloat}
-    # 2D: return SIGNED angle using atan2 for maximum precision
-    t1 = q - p
-    t2 = r - q
-    n1 = norm(t1)
-    n2 = norm(t2)
-    (n1 < eps(T) || n2 < eps(T)) && return zero(T)
-    # Normalized tangent vectors
-    u1 = t1 / n1
-    u2 = t2 / n2
-    # Signed angle via atan2: atan2(cross_product_z, dot_product)
-    # Range: [-π, π]. Positive = CCW turn, Negative = CW turn
-    atan(u1[1] * u2[2] - u1[2] * u2[1], dot(u1, u2))
-end
-
-@inline function _turning_angle_at(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}) where {N,T<:AbstractFloat}
-    # 3D+: return SIGNED angle using atan2(magnitude(cross), dot_product) for stability
-    # Taking abs() gives unsigned angle [0, π]
-    t1 = q - p
-    t2 = r - q
-    n1 = norm(t1)
-    n2 = norm(t2)
-    (n1 < eps(T) || n2 < eps(T)) && return zero(T)
-    # Use atan2 for superior numerical stability vs acos
-    # Cross product magnitude gives sin(θ) ≥ 0, so result is in [0, π]
-    c = dot(t1, t2) / (n1 * n2)
-    s = norm(t1 × t2) / (n1 * n2)  # Cross product magnitude for sine
-    atan(s, c)  # Numerically stable; result [0, π] (always positive since s ≥ 0)
-end
-
 # ─────────────────────────────────────────────────────────────────────────────
-# Curvature dispatch system
+# Single-vertex curvature
 # ─────────────────────────────────────────────────────────────────────────────
-
 """
-    curvature(c::AbstractDiscreteCurve, model::TurningAngle) → Vector
-
-Turning angle divided by mean half-length: κᵢ = θᵢ / ℓ̄ᵢ
-Default: unsigned angles [0, π] for all dimensions.
-For signed curvature (2D only), use curvature(c, SignedCurvature2D()) instead.
+    curvature(c, i, model=TurningAngle())  →  T
+ 
+Discrete curvature at vertex `i` using the specified model.
+ 
+```julia
+curvature(c, 5)                            # κ^A: TurningAngle (default)
+curvature(c, 5, SteinerCurvature())        # κ^B
+curvature(c, 5, TangentCurvature())        # κ^C
+curvature(c, 5, OsculatingCircle())        # κ^D = 1/R
+curvature(c, 5, SignedCurvature2D())       # signed (2D only)
+curvature(c, 5, LengthWeightedCurvature()) # raw |θ|
+curvature(c, 5, CustomCurvature(f))        # user kernel
+```
 """
-function curvature(c::AbstractDiscreteCurve{N,T}, ::TurningAngle) where {N,T}
-    out = turning_angles(c)
-    @inbounds for (k, (prev, curr, next)) in enumerate(edge_windows(c; k=3))
-        ℓ₁ = norm(curr - prev)
-        ℓ₂ = norm(next - curr)
-        ℓ̄ = (ℓ₁ + ℓ₂) / 2
-        out[k] = ℓ̄ > eps(T) ? out[k] / ℓ̄ : zero(T)
-    end
-    out
+@inline function curvature(c::AbstractDiscreteCurve, i::Int, model=TurningAngle())
+    _curvature_at(vertex(c, i-1), vertex(c, i), vertex(c, i+1), model)
 end
 
 """
-    curvature(c::AbstractDiscreteCurve{2}, model::SignedCurvature2D) → Vector
-
-Signed curvature κᵢ = θᵢ / ℓ̄ᵢ (2D only).
-Positive = counterclockwise turn. Sum ≈ 2π (CCW) or -2π (CW).
-Uses high-precision atan2-based computation.
+    curvatures(c, model=TurningAngle())  →  Vector{T}
+ 
+All curvature values in one pass.
+Length = nvertices (closed) or nvertices-2 (open). 
+```julia
+curvatures(c)                              # κ^A
+curvatures(c, SteinerCurvature())         # κ^B
+curvatures(c, TangentCurvature())         # κ^C
+curvatures(c, OsculatingCircle())         # κ^D = 1/R
+curvatures(c, SignedCurvature2D())        # signed (2D only)
+curvatures(c, CustomCurvature(my_f))      # custom kernel
+```
 """
-function curvature(c::AbstractDiscreteCurve{2,T}, ::SignedCurvature2D) where {T<:AbstractFloat}
-    out = turning_angles(c; signed=true)  # Get signed angles
-    @inbounds for (k, (prev, curr, next)) in enumerate(edge_windows(c; k=3))
-        ℓ₁ = norm(curr - prev)
-        ℓ₂ = norm(next - curr)
-        ℓ̄ = (ℓ₁ + ℓ₂) / 2
-        out[k] = ℓ̄ > eps(T) ? out[k] / ℓ̄ : zero(T)
-    end
-    out
-end
-
-"""
-    curvature(c::AbstractDiscreteCurve, model::SteinerCurvature) → Vector
-
-Steiner/DEC curvature: κᵢ = 2·sin(|θᵢ|/2) / ℓ̄ᵢ.
-O(h²) convergence, numerically stable even for small angles.
-Uses abs() for 2D to get unsigned curvature.
-"""
-function curvature(c::AbstractDiscreteCurve{N,T}, ::SteinerCurvature) where {N,T}
-    out = turning_angles(c)
-    @inbounds for (k, (prev, curr, next)) in enumerate(edge_windows(c; k=3))
-        ℓ₁ = norm(curr - prev)
-        ℓ₂ = norm(next - curr)
-        ℓ̄ = (ℓ₁ + ℓ₂) / 2
-        out[k] = ℓ̄ > eps(T) ? 2 * sin(abs(out[k]) / 2) / ℓ̄ : zero(T)
-    end
-    out
-end
-
-"""
-    curvature(c::AbstractDiscreteCurve, model::LengthWeightedCurvature) → Vector
-
-Raw turning angle (integrated curvature per vertex): κᵢ = θᵢ.
-No length weighting. Returns unsigned angles [0, π].
-For signed angles (2D only), use curvature(c, SignedCurvature2D()) instead.
-"""
-function curvature(c::AbstractDiscreteCurve{N,T}, ::LengthWeightedCurvature) where {N,T}
-    turning_angles(c; signed=false)
-end
-
-"""
-    curvature(c::AbstractDiscreteCurve, model::CustomCurvature) → Vector
-
-Apply user-provided 3-point kernel to all interior vertices.
-"""
-function curvature(c::AbstractDiscreteCurve{N,T}, model::CustomCurvature) where {N,T}
+function curvatures(c::AbstractDiscreteCurve{N,T}, model=TurningAngle()) where {N,T}
     n_win = length(edge_windows(c; k=3))
     out   = Vector{T}(undef, n_win)
     @inbounds for (k, (prev, curr, next)) in enumerate(edge_windows(c; k=3))
-        out[k] = model.f(prev, curr, next)
+        out[k] = _curvature_at(prev, curr, next, model)
     end
     out
 end
 
 """
-    total_curvature(c; model=TurningAngle()) → T
-
-Sum of all curvatures (integrated total curvature).
-For closed curves with LengthWeightedCurvature, should ≈ 2π (CCW) or -2π (CW).
+    curvature_vector(c, i)  →  SVector{N,T}
+ 
+Discrete curvature VECTOR at vertex `i`:  `κ · N`.
+Points toward the centre of curvature. Magnitude = κ.
+ 
+```julia
+v = curvature_vector(c, 5)
+κ = norm(v)               # κ (unsigned) at vertex 5
+N   = v / norm(v)           # principal normal direction
+```
 """
-function total_curvature(c::AbstractDiscreteCurve; model=TurningAngle())
-    sum(curvature(c, model))
+function curvature_vector(c::AbstractDiscreteCurve, i::Int, model=TurningAngle())
+    _kn_B(vertex(c, i-1), vertex(c, i), vertex(c, i+1), model)
 end
 
 """
-    bending_energy(c; model=TurningAngle()) → T
-
-H = Σ κᵢ² · ℓᵢ — integrated square of curvature.
-Measures smoothness; lower values indicate smoother curves.
+    curvature_vectors(c)  →  Vector{SVector{N,T}}
+ 
+All κ · N vectors.
 """
-function bending_energy(c::AbstractDiscreteCurve{N,T}; model=TurningAngle()) where {N,T}
-    κs = curvature(c, model)
-    ℓs = edge_lengths(c)
-    energy = zero(T)
-    @inbounds for i in 1:length(κs)
-        edge_ℓ = (ℓs[i] + ℓs[i+1]) / 2
-        energy += κs[i]^2 * edge_ℓ
+function curvature_vectors(c::AbstractDiscreteCurve{N,T}, model=TurningAngle()) where {N,T}
+    n_win = length(edge_windows(c; k=3))
+    out   = Vector{SVector{N,T}}(undef, n_win)
+    @inbounds for (k, (prev, curr, next)) in enumerate(edge_windows(c; k=3))
+        out[k] = _kn_B(prev, curr, next, model)
     end
-    energy
+    out
+end
+@inline _dual_length(p, q, r) = (norm(q - p) + norm(r - q)) / 2
+
+@inline function _safe_norm(v::SVector{N,T}) where {N,T}
+    n = norm(v)
+    n ≤ eps(T) && return zero(T)
+    n
 end
 
+# canonical unit-difference vector (unnormalised)
+@inline function _tangent_diff(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}) where {N,T}
+    d1 = q - p; d2 = r - q
+    n1 = norm(d1); n2 = norm(d2)
+    (n1 < eps(T) || n2 < eps(T)) && return zero(SVector{N,T})
+    d1/n1 - d2/n2
+end
+@inline function _kn_B(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}, ::SteinerCurvature) where {N,T}
+    _tangent_diff(p,q,r)
+end
+
+@inline function _kn_B(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}, ::TurningAngle) where {N,T}
+    v = _tangent_diff(p,q,r)
+    mag = _safe_norm(v)
+    (mag == zero(T)) && return zero(SVector{N,T})
+    θ = abs(_turning_angle_at(p,q,r))
+    ℓ̄ = _dual_length(p,q,r)
+    κ = θ / ℓ̄
+    return v * (κ / mag)
+end
+
+@inline function _kn_B(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}, ::TangentCurvature) where {N,T}
+    v = _tangent_diff(p,q,r); mag = _safe_norm(v)
+    (mag == zero(T)) && return zero(SVector{N,T})
+    θ = abs(_turning_angle_at(p,q,r)); ℓ̄ = _dual_length(p,q,r)
+    κ = 2 * tan(θ/2) / ℓ̄
+    v * (κ / mag)
+end
+
+@inline function _kn_B(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}, ::OsculatingCircle) where {N,T}
+    d = r - p
+    w = norm(d)
+    (w ≤ eps(T)) && return zero(SVector{N,T})
+    v = _tangent_diff(p,q,r); mag = _safe_norm(v)
+    (mag == zero(T)) && return zero(SVector{N,T})
+    θ = abs(_turning_angle_at(p,q,r))
+    κ = 2 * sin(θ) / w
+    v * (κ / mag)
+end
+
+@inline function _kn_B(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}, ::LengthWeightedCurvature) where {N,T}
+    v = _tangent_diff(p,q,r); mag = _safe_norm(v)
+    (mag == zero(T)) && return zero(SVector{N,T})
+    θ = abs(_turning_angle_at(p,q,r))
+    κ = θ
+    v * (κ / mag)
+end
+
+@inline function _kn_B(p::SVector{2,T}, q::SVector{2,T}, r::SVector{2,T}, ::SignedCurvature2D) where {T}
+    v = _tangent_diff(p,q,r); mag = _safe_norm(v)
+    (mag == zero(T)) && return zero(SVector{2,T})
+    θ = _turning_angle_at(p,q,r)
+    ℓ̄ = _dual_length(p,q,r)
+    κ = θ / ℓ̄
+    v * (κ / mag)
+end
+
+@inline function _kn_B(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}, model::CustomCurvature) where {N,T}
+    v = _tangent_diff(p,q,r); mag = _safe_norm(v)
+    (mag == zero(T)) && return zero(SVector{N,T})
+    κ = model.f(p,q,r)
+    v * (κ / mag)
+end
+
+@inline function _curvature_at(p, q, r, ::TurningAngle)
+    T  = eltype(p)
+    θ  = abs(_turning_angle_at(p, q, r))
+    ℓ  = _dual_length(p, q, r)
+    ℓ > eps(T) ? θ / ℓ : zero(T)
+end
+
+@inline function _curvature_at(p, q, r, ::SteinerCurvature)
+    T  = eltype(p)
+    θ  = abs(_turning_angle_at(p, q, r))
+    ℓ  = _dual_length(p, q, r)
+    ℓ > eps(T) ? 2sin(θ/2) / ℓ : zero(T)
+end
+
+@inline function _curvature_at(p, q, r, ::TangentCurvature)
+    T  = eltype(p)
+    θ  = abs(_turning_angle_at(p, q, r))
+    ℓ  = _dual_length(p, q, r)
+    ℓ > eps(T) ? 2tan(θ/2) / ℓ : zero(T)
+end
+ 
+# ── κ^D — OsculatingCircle ────────────────────────────────────────────────────
+@inline function _curvature_at(p, q, r, ::OsculatingCircle)
+    T  = eltype(p)
+    θ  = abs(_turning_angle_at(p, q, r))
+    w  = norm(r - p)
+    w > eps(T) ? 2sin(θ) / w : zero(T)
+end
+ 
+# ── SignedCurvature2D ─────────────────────────────────────────────────────────
+# Signed version of κ^A. Only defined for N=2; errors for other dimensions.
+@inline function _curvature_at(p::SVector{2,T}, q::SVector{2,T}, r::SVector{2,T},
+                                ::SignedCurvature2D) where T
+    θ = _turning_angle_at(p, q, r)
+    ℓ = _dual_length(p, q, r)
+    ℓ > eps(T) ? θ / ℓ : zero(T)
+end
+ 
+function _curvature_at(::SVector{N,T}, _, _, ::SignedCurvature2D) where {N,T}
+    error("SignedCurvature2D requires a 2D curve (N=2), got N=$N")
+end
+ 
+@inline _curvature_at(p, q, r, ::LengthWeightedCurvature) =
+    abs(_turning_angle_at(p, q, r))
+ 
+@inline _curvature_at(p, q, r, m::CustomCurvature) = m.f(p, q, r)
 end

@@ -36,6 +36,6 @@ export LazyVertexField, CurveDataBundle, bundle, channel_type, snapshot
 export @curve,@where,@any_vertex,@all_vertices,@map_verts,@functional
 
 export arc_length, edge_lengths, cumulative_length
-export turning_angle, turning_angles, curvature, total_curvature, bending_energy
-export TurningAngle, OsculatingCircle, SteinerCurvature, LengthWeightedCurvature, SignedCurvature2D, CustomCurvature
+export turning_angle, turning_angles, curvature, curvatures, curvature_vector
+export TurningAngle, OsculatingCircle, TangentCurvature, SteinerCurvature, LengthWeightedCurvature, SignedCurvature2D, CustomCurvature
 end # module DiscreteCurves
