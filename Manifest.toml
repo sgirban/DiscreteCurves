@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.12.2"
+julia_version = "1.12.6"
 manifest_format = "2.0"
-project_hash = "ee4ce912491365082baf3a1418e0b8bb40dfb418"
+project_hash = "80e52d8888d7795fe29b03c19129611ad5bbe6d8"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -19,10 +19,18 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 version = "1.11.0"
 
 [[deps.DiscreteCurves]]
-deps = ["LinearAlgebra", "Requires", "StaticArrays"]
+deps = ["LinearAlgebra", "Random", "Requires", "StaticArrays"]
 path = "."
 uuid = "2b90aa70-f385-491d-b8bc-e0c6352fe111"
 version = "0.1.0"
+
+    [deps.DiscreteCurves.extensions]
+    DiscreteCurvesMakieExt = "Makie"
+    DiscreteCurvesPlotExt = "Plots"
+
+    [deps.DiscreteCurves.weakdeps]
+    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+    Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
