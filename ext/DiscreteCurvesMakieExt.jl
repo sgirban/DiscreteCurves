@@ -6,6 +6,7 @@ using DiscreteCurves
 using DiscreteCurves.AbstractTypes: AbstractDiscreteCurve
 using DiscreteCurves.Graphics: CurveSkin, CurveFigure, VectorLayer, SKIN_NAMES, _parse_skin, BUILTIN_VERTEX_METRICS, SKIN_STUDIO, SKIN_DESIGNER, SKIN_GEOMETRIC, SKIN_SCIENTIFIC, SKIN_NEON, SKIN_PAPER, SKIN_PASTEL, SKIN_DARK, SKIN_WATERCOLOR, _require_makie
 using Makie: Makie
+using Makie: latexstring   # LaTeXString constructor for runtime-built LaTeX labels
 
 using LinearAlgebra
 
@@ -25,27 +26,30 @@ function _ensure_backend()
 end
 
 const SKINS = Dict{CurveSkin, NamedTuple}(
+	# :studio
 	SKIN_STUDIO => (
 		background     = Makie.RGBf(1.0, 1.0, 1.0),
-		curve_color    = Makie.RGBf(0.200, 0.490, 0.850),
+		curve_color    = Makie.RGBf(0.200, 0.490, 0.850),   # cerulean blue
 		curve_width    = 3.0,
 		colormap       = :blues,
 		glow           = false,
 		vertex_visible = true,
-		vertex_color   = Makie.RGBf(0.095, 0.275, 0.553),
-		vertex_size    = 7.5,
+		vertex_color   = Makie.RGBf(0.095, 0.275, 0.553),   # deep navy, same hue
+		vertex_size    = 15.0,
 		axis_visible   = false,
 		grid_visible   = false,
 		text_color     = Makie.RGBf(0.20, 0.20, 0.25),
 		palette        = [
-		Makie.RGBf(0.200, 0.490, 0.850),
-		Makie.RGBf(0.898, 0.337, 0.322),
-		Makie.RGBf(0.196, 0.706, 0.549),
-		Makie.RGBf(0.945, 0.612, 0.220),
-		Makie.RGBf(0.647, 0.357, 0.820),
-		Makie.RGBf(0.243, 0.659, 0.859)
+		Makie.RGBf(0.200, 0.490, 0.850),   # cerulean
+		Makie.RGBf(0.898, 0.337, 0.322),   # coral red
+		Makie.RGBf(0.196, 0.706, 0.549),   # mint green
+		Makie.RGBf(0.945, 0.612, 0.220),   # amber
+		Makie.RGBf(0.647, 0.357, 0.820),   # soft violet
+		Makie.RGBf(0.243, 0.659, 0.859)   # sky blue
 		],
 	),
+
+	# :designer
 	SKIN_DESIGNER => (
 		background     = Makie.RGBf(0.027, 0.027, 0.067),
 		curve_color    = :gradient,
@@ -62,6 +66,8 @@ const SKINS = Dict{CurveSkin, NamedTuple}(
 		text_color     = Makie.RGBf(0.85, 0.85, 0.95),
 		palette        = [:plasma, :viridis, :inferno, :magma],
 	),
+
+	# :geometric
 	SKIN_GEOMETRIC => (
 		background     = Makie.RGBf(0.98, 0.98, 0.98),
 		curve_color    = Makie.RGBf(0.08, 0.08, 0.08),
@@ -76,6 +82,8 @@ const SKINS = Dict{CurveSkin, NamedTuple}(
 		text_color     = Makie.RGBf(0.1, 0.1, 0.1),
 		palette        = [Makie.RGBf(0.08, 0.08, 0.08), Makie.RGBf(0.4, 0.4, 0.4), Makie.RGBf(0.65, 0.65, 0.65)],
 	),
+
+	# :scientific
 	SKIN_SCIENTIFIC => (
 		background     = :white,
 		curve_color    = :palette,
@@ -97,6 +105,8 @@ const SKINS = Dict{CurveSkin, NamedTuple}(
 		Makie.RGBf(0.902, 0.624, 0.000)
 		],
 	),
+
+	# :neon
 	SKIN_NEON => (
 		background     = Makie.RGBf(0.0, 0.0, 0.0),
 		curve_color    = :palette,
@@ -116,6 +126,8 @@ const SKINS = Dict{CurveSkin, NamedTuple}(
 		Makie.RGBf(1.0, 0.3, 0.0), Makie.RGBf(0.4, 0.4, 1.0)
 		],
 	),
+
+	# :paper
 	SKIN_PAPER => (
 		background     = Makie.RGBf(0.961, 0.941, 0.902),
 		curve_color    = Makie.RGBf(0.169, 0.110, 0.055),
@@ -130,6 +142,8 @@ const SKINS = Dict{CurveSkin, NamedTuple}(
 		text_color     = Makie.RGBf(0.169, 0.110, 0.055),
 		palette        = [Makie.RGBf(0.169, 0.110, 0.055), Makie.RGBf(0.4, 0.2, 0.05), Makie.RGBf(0.6, 0.35, 0.1)],
 	),
+
+	# :pastel
 	SKIN_PASTEL => (
 		background     = :white,
 		curve_color    = :gradient,
@@ -144,6 +158,8 @@ const SKINS = Dict{CurveSkin, NamedTuple}(
 		palette        = [Makie.RGBf(0.686, 0.769, 0.929), Makie.RGBf(0.961, 0.702, 0.749),
 		Makie.RGBf(0.729, 0.902, 0.745), Makie.RGBf(0.988, 0.886, 0.694)],
 	),
+
+	# :dark
 	SKIN_DARK => (
 		background     = Makie.RGBf(0.118, 0.118, 0.180),
 		curve_color    = :gradient,
@@ -163,6 +179,8 @@ const SKINS = Dict{CurveSkin, NamedTuple}(
 		Makie.RGBf(0.647, 0.902, 0.678), Makie.RGBf(0.988, 0.843, 0.498)
 		],
 	),
+
+	# :watercolor
 	SKIN_WATERCOLOR => (
 		background     = :white,
 		curve_color    = :gradient,
@@ -204,17 +222,17 @@ function _resolve(skin::CurveSkin, user_kw)
 		glow_intensity      = opt(:glow_intensity, 0.12),
 		vertex_visible      = opt(:vertex_visible, false),
 		vertex_color        = opt(:vertex_color, nothing),
-		vertex_size         = opt(:vertex_size, 7.0),
+		vertex_size         = opt(:vertex_size, 14.0),
 		vertex_marker       = opt(:vertex_marker, :circle),
 		vertex_alpha        = opt(:vertex_alpha, 1.0),
 		vertex_labels       = opt(:vertex_labels, false),
 		label_position      = opt(:label_position, :N),
-		label_spacing       = opt(:label_spacing, 0.06),
-		label_fontsize      = opt(:label_fontsize, 11),
+		label_spacing       = opt(:label_spacing, 0.25),   # fraction of bounding-box extent (increased significantly for visibility)
+		label_fontsize      = opt(:label_fontsize, 16),
 		label_color         = opt(:label_color, :auto),
 		edge_labels         = opt(:edge_labels, false),
 		edge_label_position = opt(:edge_label_position, :above),
-		edge_label_spacing  = opt(:edge_label_spacing, 0.05),
+		edge_label_spacing  = opt(:edge_label_spacing, 0.20),
 		tooltip             = opt(:tooltip, false),
 		vectors             = opt(:vectors, nothing),
 		vector_scale        = opt(:vector_scale, 0.15),
@@ -235,6 +253,7 @@ function _resolve(skin::CurveSkin, user_kw)
 		grid_color          = opt(:grid_color, Makie.RGBAf(0, 0, 0, 0.12)),
 		controls            = opt(:controls, false),
 		mouse_mode          = opt(:mouse_mode, :default),
+		curve_name          = opt(:curve_name, "\\gamma"),
 	)
 end
 
@@ -304,7 +323,7 @@ end
 function _eval_func_colors(c, f)
 	n = nvertices(c)
 	vals = Vector{Float64}(undef, n)
-
+	# Try (c, i) signature first, fall back to (p)
 	try
 		vals[1] = Float64(f(c, 1))
 		for i in 2:n
@@ -324,25 +343,23 @@ function _scalars_to_colors(vals::Vector{Float64}, cm, clims)
 	lo, hi = clims == :auto ? extrema(vals) : Float64.(clims)
 	rng    = hi - lo
 	normed = rng ≈ 0.0 ? fill(0.5, length(vals)) : clamp.((vals .- lo) ./ rng, 0.0, 1.0)
-	cm_vec = Makie.to_colormap(cm)
+	cm_vec = Makie.to_colormap(cm)          # Vector{RGBAf} — stable across all versions
 	[_sample_colormap(cm_vec, t) for t in normed]
 end
 
-# Linear interpolation through a discrete colormap vector.
-# Replaces Makie.interpolate_colors which was removed in Makie v0.21.
 @inline function _sample_colormap(cm::AbstractVector, t::Real)
-	n = length(cm)
+	n  = length(cm)
 	n == 1 && return Makie.RGBAf(cm[1])
 	s  = clamp(Float64(t), 0.0, 1.0) * (n - 1)
 	i0 = clamp(floor(Int, s) + 1, 1, n)
 	i1 = min(i0 + 1, n)
-	α = s - floor(s)
+	α  = s - floor(s)
 	c0 = Makie.RGBAf(cm[i0])
 	c1 = Makie.RGBAf(cm[i1])
 	Makie.RGBAf(c0.r + α*(c1.r - c0.r),
-		c0.g + α*(c1.g - c0.g),
-		c0.b + α*(c1.b - c0.b),
-		c0.alpha + α*(c1.alpha - c0.alpha))
+	            c0.g + α*(c1.g - c0.g),
+	            c0.b + α*(c1.b - c0.b),
+	            c0.alpha + α*(c1.alpha - c0.alpha))
 end
 function _make_figure_axis(opt, is3d::Bool)
 	fig = Makie.Figure(; size = opt.size, backgroundcolor = opt.background)
@@ -352,13 +369,19 @@ function _make_figure_axis(opt, is3d::Bool)
 	else
 		_tc = opt.text_color
 		Makie.Axis(fig[1, 1];
-		backgroundcolor = opt.background,
-		aspect          = opt.aspect == :equal ? Makie.DataAspect() : Makie.AxisAspect(1),
-		title           = opt.title, titlecolor      = _tc,
-		xlabel          = opt.xlabel, ylabel          = opt.ylabel,
-		xlabelcolor     = _tc, ylabelcolor     = _tc,
-		xticklabelcolor = _tc, yticklabelcolor = _tc,
-		xtickcolor      = _tc, ytickcolor      = _tc)
+		backgroundcolor    = opt.background,
+		aspect             = opt.aspect == :equal ? Makie.DataAspect() : Makie.AxisAspect(1),
+		title              = opt.title, titlecolor      = _tc,
+		xlabel             = opt.xlabel, ylabel          = opt.ylabel,
+		xlabelcolor        = _tc, ylabelcolor     = _tc,
+		xticklabelcolor    = _tc, yticklabelcolor = _tc,
+		xtickcolor         = _tc, ytickcolor      = _tc,
+		# ── Generous margins so vertex labels are never clipped ──────────────
+		# Default is 0.05 (5%). 0.15 (15%) gives labels room on all sides.
+		# This affects the autolimits calculation, not the clip region itself.
+		xautolimitmargin   = (0.15f0, 0.15f0),
+		yautolimitmargin   = (0.15f0, 0.15f0),
+		)
 	end
 
 	if !opt.axis_visible
@@ -381,74 +404,66 @@ function _make_figure_axis(opt, is3d::Bool)
 	fig, ax
 end
 
+
 function _apply_mouse_mode!(ax::Makie.Axis, mode::Symbol)
-	mode == :default && return
+	mode == :default && return 
 
 	if mode == :pan
+		
 		try
 			Makie.deregister_interaction!(ax, :scrollzoom)
-		catch
-			;
-		end
+		catch; end
 		try
 			Makie.register_interaction!(ax, :scrollpan) do event::Makie.ScrollEvent, ax
 				dx = event.x * 0.05
-				dy = -event.y * 0.05
+				dy = event.y * 0.05
 				xmin, xmax = ax.xaxis.attributes.limits[]
 				ymin, ymax = ax.yaxis.attributes.limits[]
 				rng_x = xmax - xmin
 				rng_y = ymax - ymin
 				Makie.xlims!(ax, xmin - dx*rng_x, xmax - dx*rng_x)
 				Makie.ylims!(ax, ymin - dy*rng_y, ymax - dy*rng_y)
+				Makie.consume(event)
 			end
-		catch
-			;
-		end
+		catch; end
 
 	elseif mode == :zoom
 		try
 			Makie.deregister_interaction!(ax, :rectanglezoom)
-		catch
-			;
-		end
+		catch; end
 
 	else
 		@warn "Unknown mouse_mode :$mode. Use :default, :pan, or :zoom."
 	end
 end
 
-function _add_controls!(fig, ax, is3d::Bool, opt)
 
+function _add_controls!(fig, ax, is3d::Bool, opt)
 	isdefined(Makie, :Button) || return
 
-
-	bg = Makie.to_color(opt.background)
-	tc = Makie.to_color(opt.text_color)
-
-
+	bg  = Makie.to_color(opt.background)
+	tc  = Makie.to_color(opt.text_color)
 	btn_bg = Makie.RGBf(
-		clamp(bg.r + 0.08f0, 0.0f0, 1.0f0),
-		clamp(bg.g + 0.08f0, 0.0f0, 1.0f0),
-		clamp(bg.b + 0.08f0, 0.0f0, 1.0f0),
+		clamp(bg.r + 0.08f0, 0f0, 1f0),
+		clamp(bg.g + 0.08f0, 0f0, 1f0),
+		clamp(bg.b + 0.08f0, 0f0, 1f0),
 	)
 	btn_bg_hover = Makie.RGBf(
-		clamp(bg.r + 0.18f0, 0.0f0, 1.0f0),
-		clamp(bg.g + 0.18f0, 0.0f0, 1.0f0),
-		clamp(bg.b + 0.18f0, 0.0f0, 1.0f0),
+		clamp(bg.r + 0.18f0, 0f0, 1f0),
+		clamp(bg.g + 0.18f0, 0f0, 1f0),
+		clamp(bg.b + 0.18f0, 0f0, 1f0),
 	)
-
 
 	toolbar = fig[2, 1] = Makie.GridLayout(tellwidth = false)
 
-
 	reset_btn = Makie.Button(toolbar[1, 1];
-		label              = "⟲  Reset",
-		buttoncolor        = btn_bg,
-		buttoncolor_hover  = btn_bg_hover,
-		buttoncolor_active = btn_bg_hover,
-		labelcolor         = tc,
-		height             = 28,
-		width              = 80,
+		label        = "Reset",
+		buttoncolor  = btn_bg,
+		buttoncolor_hover   = btn_bg_hover,
+		buttoncolor_active  = btn_bg_hover,
+		labelcolor   = tc,
+		height       = 28,
+		width        = 80,
 	)
 	Makie.on(reset_btn.clicks) do _
 		Makie.reset_limits!(ax)
@@ -456,56 +471,53 @@ function _add_controls!(fig, ax, is3d::Bool, opt)
 
 	if !is3d
 		pan_btn = Makie.Button(toolbar[1, 2];
-			label              = "Pan",
-			buttoncolor        = btn_bg,
+			label       = "Pan",
+			buttoncolor = btn_bg,
 			buttoncolor_hover  = btn_bg_hover,
 			buttoncolor_active = btn_bg_hover,
-			labelcolor         = tc,
-			height             = 28, width              = 80,
+			labelcolor  = tc,
+			height = 28, width = 80,
 		)
 		Makie.on(pan_btn.clicks) do _
 			_apply_mouse_mode!(ax, :pan)
 		end
+
 		zoom_btn = Makie.Button(toolbar[1, 3];
-			label              = "Zoom",
-			buttoncolor        = btn_bg,
+			label       = "Zoom",
+			buttoncolor = btn_bg,
 			buttoncolor_hover  = btn_bg_hover,
 			buttoncolor_active = btn_bg_hover,
-			labelcolor         = tc,
-			height             = 28, width              = 80,
+			labelcolor  = tc,
+			height = 28, width = 80,
 		)
 		Makie.on(zoom_btn.clicks) do _
 			_apply_mouse_mode!(ax, :zoom)
 		end
+
 		fit_btn = Makie.Button(toolbar[1, 4];
-			label              = "Fit",
-			buttoncolor        = btn_bg,
+			label       = "Fit",
+			buttoncolor = btn_bg,
 			buttoncolor_hover  = btn_bg_hover,
 			buttoncolor_active = btn_bg_hover,
-			labelcolor         = tc,
-			height             = 28, width              = 80,
+			labelcolor  = tc,
+			height = 28, width = 80,
 		)
 		Makie.on(fit_btn.clicks) do _
 			Makie.autolimits!(ax)
 		end
 	else
 		rot_btn = Makie.Button(toolbar[1, 2];
-			label       = "Rotate (drag)",
+			label       = "Rotate: drag",
 			buttoncolor = btn_bg,
 			labelcolor  = tc,
-			height      = 28, width       = 120,
+			height = 28, width = 120,
 		)
-		Makie.on(rot_btn.clicks) do _
-			;
-		end
+		Makie.on(rot_btn.clicks) do _; end   # informational only
 	end
-
 
 	Makie.rowsize!(fig.layout, 2, Makie.Auto())
 	Makie.rowgap!(fig.layout, 4)
 end
-
-
 
 function _draw_curve!(ax, c, vertex_colors, opt, is3d::Bool)
 	n     = nvertices(c)
@@ -602,121 +614,111 @@ function _draw_labels!(ax, c, opt, is3d::Bool)
 	opt.vertex_labels == false && return
 	n    = nvertices(c)
 	lcol = opt.label_color == :auto ? opt.text_color : opt.label_color
+	lcol = Makie.to_color(lcol)  # Convert to actual Makie color (handles both colors and symbols)
 	pos  = opt.label_position
+	cname = String(opt.curve_name)    # e.g. "\\gamma" or "p"
 
-
+	# ── Offset: fraction of bounding-box extent ────────────────────────────────
 	lo_bb, hi_bb = DiscreteCurves.bounding_box(c)
-	extent = max(hi_bb[1] - lo_bb[1], hi_bb[2] - lo_bb[2], 0.01)
-	sp = Float64(opt.label_spacing) * extent   # data-space offset
-
-
-	labels = if opt.vertex_labels == true || opt.vertex_labels == :index
-		[string(i) for i in 1:n]
-	elseif opt.vertex_labels == :coords
-		if is3d
-			["($(round(c.points[i][1];digits=2)),$(round(c.points[i][2];digits=2)),$(round(c.points[i][3];digits=2)))" for i in 1:n]
-		else
-			["($(round(c.points[i][1];digits=2)),$(round(c.points[i][2];digits=2)))" for i in 1:n]
-		end
-	elseif opt.vertex_labels == :latex || opt.vertex_labels == :gamma
-
-		[Makie.L"\gamma_{$i}" for i in 1:n]
-	elseif opt.vertex_labels isa Function
-		[string(opt.vertex_labels(i)) for i in 1:n]
-	else
-		[string(i) for i in 1:n]
-	end
-
+	extent = max(Float64(hi_bb[1] - lo_bb[1]), Float64(hi_bb[2] - lo_bb[2]), 0.01)
+	sp     = Float64(opt.label_spacing) * extent
 
 	al = _pos_to_align(pos)
+
+	# ── Precompute normals for :auto mode; ignored for :N/:S/:E/:W ────────────
 	ns = DiscreteCurves.normals(c)
 
-	if is3d
-		positions = Makie.Point3f[]
-		for i in 1:n
-			p = c.points[i]
-			nv = ns[i]
-			dx, dy = _label_offset(pos, sp, (Float64(nv[1]), Float64(nv[2])))
-			push!(positions, Makie.Point3f(p[1]+dx, p[2]+dy, p[3]))
+	# ── Build and draw labels one by one ──────────────────────────────────────
+	# We use per-element calls rather than the vectorised form because:
+	#   - The vectorised Makie.text!(ax, strings; position=points, ...) form
+	#     changed between Makie versions and can silently render all strings
+	#     as a single multi-line block at one position.
+	#   - The single-element form  text!(ax, pt; text="...", ...)
+	#     is stable and unambiguous in every Makie v0.19–0.21+ release.
+
+	for i in 1:n
+		p  = c.points[i]
+		nv = ns[i]
+		dx, dy = _label_offset(pos, sp, (Float64(nv[1]), Float64(nv[2])))
+		pt  = is3d ? Makie.Point3f(p[1]+dx, p[2]+dy, p[3]) :
+		             Makie.Point2f(p[1]+dx, p[2]+dy)
+
+		label = if opt.vertex_labels == true || opt.vertex_labels == :index
+			string(i)
+		elseif opt.vertex_labels == :coords
+			if is3d
+				"($(round(Float64(p[1]);digits=2)), $(round(Float64(p[2]);digits=2)), $(round(Float64(p[3]);digits=2)))"
+			else
+				"($(round(Float64(p[1]);digits=2)), $(round(Float64(p[2]);digits=2)))"
+			end
+		elseif opt.vertex_labels == :latex || opt.vertex_labels == :gamma
+			# Produce LaTeX "γ_i" with the user-chosen curve name.
+			# We build a proper LaTeXString so subscript renders correctly.
+			Makie.latexstring("$(cname)_{$(i)}")
+		elseif opt.vertex_labels isa Function
+			string(opt.vertex_labels(i))
+		else
+			string(i)
 		end
-		Makie.text!(ax, labels; position = positions,
-			color = lcol, fontsize = opt.label_fontsize, align = al)
-	else
-		positions = Makie.Point2f[]
-		for i in 1:n
-			p = c.points[i]
-			nv = ns[i]
-			dx, dy = _label_offset(pos, sp, (Float64(nv[1]), Float64(nv[2])))
-			push!(positions, Makie.Point2f(p[1]+dx, p[2]+dy))
-		end
-		Makie.text!(ax, labels; position = positions,
-			color = lcol, fontsize = opt.label_fontsize, align = al)
+
+		Makie.text!(ax, label;
+			position = pt,
+			color    = lcol,
+			fontsize = Float32(opt.label_fontsize),
+			align    = al,
+		)
 	end
 end
 
-
+# Derive Makie text alignment from cardinal direction symbol.
 function _pos_to_align(pos::Symbol)
 	pos == :N && return (:center, :bottom)
 	pos == :S && return (:center, :top)
-	pos == :E && return (:left, :center)
-	pos == :W && return (:right, :center)
-	return (:center, :bottom)   # default = North
+	pos == :E && return (:left,   :center)
+	pos == :W && return (:right,  :center)
+	return (:center, :bottom)
 end
 
 function _draw_edge_labels!(ax, c, opt, is3d::Bool)
 	opt.edge_labels == false && return
-	n = nvertices(c)
+	n  = nvertices(c)
 	ne = nedges(c)
 	lcol = opt.label_color == :auto ? opt.text_color : opt.label_color
+	lcol = Makie.to_color(lcol)  # Convert to actual Makie color
 
 	lo_bb, hi_bb = DiscreteCurves.bounding_box(c)
-	extent = max(hi_bb[1] - lo_bb[1], hi_bb[2] - lo_bb[2], 0.01)
-	sp = Float64(opt.edge_label_spacing) * extent
-
-	labels = if opt.edge_labels == true
-		[string(i) for i in 1:ne]
-	elseif opt.edge_labels isa Function
-		[string(opt.edge_labels(c, i)) for i in 1:ne]
-	elseif opt.edge_labels isa AbstractVector
-		string.(opt.edge_labels)
-	else
-		[string(i) for i in 1:ne]
-	end
-
-	ns  = DiscreteCurves.normals(c)
+	extent = max(Float64(hi_bb[1] - lo_bb[1]), Float64(hi_bb[2] - lo_bb[2]), 0.01)
+	sp  = Float64(opt.edge_label_spacing) * extent
 	dir = opt.edge_label_position == :above ? 1.0 : -1.0
+	ns  = DiscreteCurves.normals(c)
 
-	if is3d
-		positions = Makie.Point3f[]
-		for i in 1:ne
-			p1 = c.points[i]
-			p2 = c.points[mod1(i+1, n)]
-			mid = (p1 + p2) / 2
-			nv = (ns[i] + ns[mod1(i+1, n)]) / 2
-			nn = norm(nv)
-			nhat = nn > 1e-8 ? nv/nn : typeof(nv)(0, 1, 0)
-			push!(positions, Makie.Point3f(mid[1] + nhat[1]*sp*dir,
-				mid[2] + nhat[2]*sp*dir,
-				mid[3]))
+	for i in 1:ne
+		p1  = c.points[i]
+		p2  = c.points[mod1(i+1, n)]
+		mid = (p1 + p2) / 2
+		nv  = (ns[i] + ns[mod1(i+1,n)]) / 2
+		nn  = norm(nv)
+		nhat = nn > 1e-8 ? nv/nn : typeof(nv)(0,1)
+		tx  = Float64(mid[1]) + Float64(nhat[1])*sp*dir
+		ty  = Float64(mid[2]) + Float64(nhat[2])*sp*dir
+
+		label = if opt.edge_labels == true
+			string(i)
+		elseif opt.edge_labels isa Function
+			string(opt.edge_labels(c, i))
+		elseif opt.edge_labels isa AbstractVector && i ≤ length(opt.edge_labels)
+			string(opt.edge_labels[i])
+		else
+			string(i)
 		end
-		Makie.text!(ax, labels; position = positions,
-			color = lcol, fontsize = opt.label_fontsize,
-			align = (:center, :center))
-	else
-		positions = Makie.Point2f[]
-		for i in 1:ne
-			p1 = c.points[i]
-			p2 = c.points[mod1(i+1, n)]
-			mid = (p1 + p2) / 2
-			nv = (ns[i] + ns[mod1(i+1, n)]) / 2
-			nn = norm(nv)
-			nhat = nn > 1e-8 ? nv/nn : typeof(nv)(0, 1)
-			push!(positions, Makie.Point2f(mid[1] + nhat[1]*sp*dir,
-				mid[2] + nhat[2]*sp*dir))
-		end
-		Makie.text!(ax, labels; position = positions,
-			color = lcol, fontsize = opt.label_fontsize,
-			align = (:center, :center))
+
+		pt = is3d ? Makie.Point3f(tx, ty, Float64(mid[3])) : Makie.Point2f(tx, ty)
+		Makie.text!(ax, label;
+			position = pt,
+			color    = lcol,
+			fontsize = Float32(opt.label_fontsize),
+			align    = (:center, :center),
+		)
 	end
 end
 
@@ -753,24 +755,27 @@ function _draw_vectors_overlay!(ax, c, vertex_colors, opt, is3d::Bool)
 	end
 
 	w = Float32(opt.vector_width)
-
-	tip_w = w * 1.8f0
-	tip_l = w * 2.8f0
+	# Proportional arrowhead: tipwidth and tiplength scale with shaft width.
+	# arrows2d!/arrows3d! are the Makie v0.21+ replacements for the deprecated arrows!.
+	tip_w = w * 1.8f0   # arrowhead base width
+	tip_l = w * 2.8f0   # arrowhead length
 
 	if is3d
 		ps = Makie.Point3f.([c.points[i][1] for i in 1:n], [c.points[i][2] for i in 1:n], [c.points[i][3] for i in 1:n])
 		ds = Makie.Point3f.([vecs[i][1]*sc for i in 1:n], [vecs[i][2]*sc for i in 1:n], [vecs[i][3]*sc for i in 1:n])
 		Makie.arrows3d!(ax, ps, ds; color = arrow_cols, linewidth = w,
-			tipwidth = tip_w, tiplength = tip_l)
+		                tipwidth = tip_w, tiplength = tip_l)
 	else
 		ps = Makie.Point2f.([c.points[i][1] for i in 1:n], [c.points[i][2] for i in 1:n])
 		ds = Makie.Point2f.([vecs[i][1]*sc for i in 1:n], [vecs[i][2]*sc for i in 1:n])
 		Makie.arrows2d!(ax, ps, ds; color = arrow_cols, linewidth = w,
-			tipwidth = tip_w, tiplength = tip_l)
+		                tipwidth = tip_w, tiplength = tip_l)
 	end
 end
 
-
+# ─────────────────────────────────────────────────────────────────────────────
+#  Tooltip builder
+# ─────────────────────────────────────────────────────────────────────────────
 
 function _build_tooltip_fn(c, tooltip_spec)
 	tooltip_spec == false && return nothing
@@ -794,10 +799,12 @@ function _build_tooltip_fn(c, tooltip_spec)
 	return nothing
 end
 
-
+# ─────────────────────────────────────────────────────────────────────────────
+# Draw one complete curve
+# ─────────────────────────────────────────────────────────────────────────────
 
 function _plot_one_curve!(ax, c, opt, cspec, is3d::Bool, palette_idx::Int)
-
+	# Resolve color spec (palette cycling for multi-curve)
 	actual_spec = if cspec == :palette
 		pal = opt.palette
 		pal[mod1(palette_idx, length(pal))]
@@ -812,10 +819,15 @@ function _plot_one_curve!(ax, c, opt, cspec, is3d::Bool, palette_idx::Int)
 	tooltip_fn = _build_tooltip_fn(c, opt.tooltip)
 	_draw_vertices!(ax, c, vertex_colors, opt, is3d; tooltip_fn)
 
+	_draw_labels!(ax, c, opt, is3d)
+	_draw_edge_labels!(ax, c, opt, is3d)
 	_draw_vectors_overlay!(ax, c, vertex_colors, opt, is3d)
 
 	vertex_colors
 end
+# ─────────────────────────────────────────────────────────────────────────────
+#  curveplot
+# ─────────────────────────────────────────────────────────────────────────────
 
 function DiscreteCurves.Graphics.curveplot(cs::AbstractVector{<:AbstractDiscreteCurve};
 	skin = :studio, kwargs...)
@@ -864,13 +876,20 @@ function DiscreteCurves.Graphics.curveplot!(ax::Union{Makie.Axis, Makie.Axis3},
 	ax
 end
 
+# Makie's own plot() — so `plot(c)` works
 Makie.plot(c::AbstractDiscreteCurve; kwargs...) =
 	DiscreteCurves.Graphics.curveplot(c; kwargs...)
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  CurveFigure display + Base.:+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Transparent display — REPL/Jupyter see the Makie Figure
 Base.show(io::IO, m::MIME, cf::CurveFigure) = show(io, m, cf._fig)
 Base.showable(m::MIME, cf::CurveFigure)     = showable(m, cf._fig)
 Base.display(cf::CurveFigure)               = (_ensure_backend(); display(cf._fig))
 
+# ── Base.:+ — overlay VectorLayer onto CurveFigure ───────────────────────────
 function Base.:+(cf::CurveFigure, vl::VectorLayer)
 	opt  = cf._opt
 	ax   = cf._ax
@@ -879,7 +898,9 @@ function Base.:+(cf::CurveFigure, vl::VectorLayer)
 	cf
 end
 
-
+# ─────────────────────────────────────────────────────────────────────────────
+# save_figure
+# ─────────────────────────────────────────────────────────────────────────────
 
 function DiscreteCurves.Graphics.save_figure(filename::AbstractString,
 	cf::CurveFigure; kwargs...)
@@ -889,7 +910,9 @@ function DiscreteCurves.Graphics.save_figure(filename::AbstractString,
 	filename
 end
 
-
+# ─────────────────────────────────────────────────────────────────────────────
+# vectorplot / vectorplot!
+# ─────────────────────────────────────────────────────────────────────────────
 
 """
 	vectorplot(vecs; anchors, skin, kwargs...)   → CurveFigure (standalone)
@@ -936,8 +959,9 @@ function _render_vector_layer!(ax, vl::VectorLayer, opt, is3d::Bool)
 	N = length(vecs[1])
 
 	arrow_color     = get(kw, :arrow_color, Makie.RGBf(0.200, 0.490, 0.850))
-	arrow_width     = Float32(get(kw, :arrow_width, 2.0))
-	arrowhead_scale = Float32(get(kw, :arrowhead_scale, 3.5))
+	arrow_width     = Float32(get(kw, :arrow_width, 5.0))
+	arrowhead_scale = Float32(get(kw, :arrowhead_scale, 6.0))
+	lengthscale     = Float32(get(kw, :lengthscale, 1.2))
 	anchor_visible  = Bool(get(kw, :anchor_visible, true))
 	anchor_size     = Float32(get(kw, :anchor_size, arrow_width * 3.0))
 	anchor_marker   = get(kw, :anchor_marker, :circle)
@@ -950,6 +974,7 @@ function _render_vector_layer!(ax, vl::VectorLayer, opt, is3d::Bool)
 	label_sp        = Float64(get(kw, :label_spacing, 0.12))
 	label_fs        = get(kw, :label_fontsize, 11)
 	label_color     = get(kw, :label_color, opt.text_color)
+	label_color     = Makie.to_color(label_color)  # Convert to actual Makie color
 
 	n = length(vecs)
 	mags = [norm(v) for v in vecs]
@@ -974,8 +999,8 @@ function _render_vector_layer!(ax, vl::VectorLayer, opt, is3d::Bool)
 
 
 	# Proportional arrowhead: tipwidth and tiplength scale with shaft width.
-	tip_w = arrow_width * 1.8f0
-	tip_l = arrow_width * 2.8f0
+	tip_w = arrow_width * arrowhead_scale * 0.4f0
+	tip_l = arrow_width * arrowhead_scale * 0.6f0
 
 	if is3d || N == 3
 		ps = Makie.Point3f.([anchors[i][1] for i in 1:n],
@@ -984,15 +1009,15 @@ function _render_vector_layer!(ax, vl::VectorLayer, opt, is3d::Bool)
 		ds = Makie.Point3f.([directions[i][1] for i in 1:n],
 			[directions[i][2] for i in 1:n],
 			[directions[i][3] for i in 1:n])
-		Makie.arrows3d!(ax, ps, ds; color = draw_cols, linewidth = arrow_width,
-			tipwidth = tip_w, tiplength = tip_l)
+		Makie.arrows3d!(ax, ps, ds; color = draw_cols, shaftwidth = arrow_width,
+		                tipwidth = tip_w, tiplength = tip_l, lengthscale = lengthscale)
 	else
 		ps = Makie.Point2f.([anchors[i][1] for i in 1:n],
 			[anchors[i][2] for i in 1:n])
 		ds = Makie.Point2f.([directions[i][1] for i in 1:n],
 			[directions[i][2] for i in 1:n])
-		Makie.arrows2d!(ax, ps, ds; color = draw_cols, linewidth = arrow_width,
-			tipwidth = tip_w, tiplength = tip_l)
+		Makie.arrows2d!(ax, ps, ds; color = draw_cols, shaftwidth = arrow_width,
+		                tipwidth = tip_w, tiplength = tip_l, lengthscale = lengthscale)
 	end
 
 	if anchor_visible && anchor_marker !== :none && anchor_marker !== nothing
@@ -1044,12 +1069,12 @@ function _render_vector_layer!(ax, vl::VectorLayer, opt, is3d::Bool)
 				(perp[1]*sp, perp[2]*sp)
 			end
 			if N == 2
-				Makie.text!(ax, Makie.Point2f(tip[1]+offset[1], tip[2]+offset[2]);
-					text = label_strs[i], color = label_color, fontsize = label_fs,
+				Makie.text!(ax, label_strs[i];
+					position = Makie.Point2f(tip[1]+offset[1], tip[2]+offset[2]), color = label_color, fontsize = label_fs,
 					align = (:center, :bottom))
 			else
-				Makie.text!(ax, Makie.Point3f(tip[1]+offset[1], tip[2]+offset[2], tip[3]);
-					text = label_strs[i], color = label_color, fontsize = label_fs,
+				Makie.text!(ax, label_strs[i];
+					position = Makie.Point3f(tip[1]+offset[1], tip[2]+offset[2], tip[3]), color = label_color, fontsize = label_fs,
 					align = (:center, :bottom))
 			end
 		end

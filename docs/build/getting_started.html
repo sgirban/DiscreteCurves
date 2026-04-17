@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Getting Started · DiscreteCurves.jl</title><meta name="title" content="Getting Started · DiscreteCurves.jl"/><meta property="og:title" content="Getting Started · DiscreteCurves.jl"/><meta property="twitter:title" content="Getting Started · DiscreteCurves.jl"/><meta name="description" content="Documentation for DiscreteCurves.jl."/><meta property="og:description" content="Documentation for DiscreteCurves.jl."/><meta property="twitter:description" content="Documentation for DiscreteCurves.jl."/><meta property="og:url" content="https://sgirban.github.io/DiscreteCurves.jl/getting_started.html"/><meta property="twitter:url" content="https://sgirban.github.io/DiscreteCurves.jl/getting_started.html"/><link rel="canonical" href="https://sgirban.github.io/DiscreteCurves.jl/getting_started.html"/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="index.html">DiscreteCurves.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="index.html">Home</a></li><li class="is-active"><a class="tocitem" href="getting_started.html">Getting Started</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Your-first-curve"><span>Your first curve</span></a></li><li><a class="tocitem" href="#Key-concepts"><span>Key concepts</span></a></li></ul></li><li><a class="tocitem" href="mathematics.html">Mathematics</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href="getting_started.html">Getting Started</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="getting_started.html">Getting Started</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/sgirban/DiscreteCurves" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/sgirban/DiscreteCurves/blob/main/docs/src/getting_started.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Getting-Started"><a class="docs-heading-anchor" href="#Getting-Started">Getting Started</a><a id="Getting-Started-1"></a><a class="docs-heading-anchor-permalink" href="#Getting-Started" title="Permalink"></a></h1><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><pre><code class="language-julia hljs">using Pkg
+Pkg.add(&quot;DiscreteCurves&quot;)</code></pre><p>For visualisation, add one of the Makie backends:</p><pre><code class="language-julia hljs">Pkg.add(&quot;GLMakie&quot;)    # interactive desktop window
+Pkg.add(&quot;CairoMakie&quot;) # PDF/SVG/PNG file output</code></pre><h2 id="Your-first-curve"><a class="docs-heading-anchor" href="#Your-first-curve">Your first curve</a><a id="Your-first-curve-1"></a><a class="docs-heading-anchor-permalink" href="#Your-first-curve" title="Permalink"></a></h2><pre><code class="language-julia hljs">using DiscreteCurves
+using GLMakie
+
+# ── Construct ─────────────────────────────────────────────────────────────────
+
+# Parametric: give a function t → (x, y)
+c = ParametricCurve(t -&gt; (cos(t), sin(t)), 0, 2π, 128; closed=true)
+
+# Or use the macro
+c = @curve (cos(t), sin(t))  t ∈ 0..2π  n=128  closed
+
+# Or use a generator
+c = circle_curve(128)
+c = fourier_curve(256; modes=6, roughness=0.5, seed=42)
+c = random_convex_polygon(16; irregularity=0.4)
+
+# ── Inspect ───────────────────────────────────────────────────────────────────
+
+nvertices(c)      # → 128
+nedges(c)         # → 128  (closed: nedges = nvertices)
+isclosed(c)       # → true
+arc_length(c)     # → ≈ 2π
+vertex(c, 5)      # → SVector{2,Float64} — the 5th vertex
+vertex(c, 129)    # → same as vertex(c, 1) for closed curves (modular)
+
+# ── Geometry ──────────────────────────────────────────────────────────────────
+
+κs = curvatures(c)                        # Vector of curvatures (κᴬ by default)
+κs = curvatures(c, OsculatingCircle())    # 1/R model
+ns = normals(c)                           # unit outward normals
+ts = unit_tangents(c; at=:vertex)         # unit vertex tangents
+θs = tangent_angles(c)                    # atan(t_y, t_x) for each edge
+
+L  = arc_length(c)
+A  = enclosed_area(c)
+s  = cumulative_length(c)                 # arc-length parameter at each vertex
+
+# ── Transform ─────────────────────────────────────────────────────────────────
+
+c2 = c + SVector(1.0, 0.0)               # translate
+c2 = c * 2.0                             # scale
+c2 = rotate(c, π/4)                      # rotate 45° CCW
+c2 = resample(c, 512)                    # arc-length uniform resampling
+
+# ── Flow ──────────────────────────────────────────────────────────────────────
+
+r = evolve(c, CurvatureFlow();
+    nsteps     = 300,
+    save_every = 10,           # save a snapshot every 10 steps
+    track      = [:L =&gt; arc_length, :A =&gt; enclosed_area])
+
+r.curve        # final curve
+r.time         # total physical time elapsed
+r[:L]          # Vector of arc lengths (one per tracked step)
+r[0]           # initial curve (σ=0)
+r[50]          # curve after 50 steps
+
+# ── Plot ──────────────────────────────────────────────────────────────────────
+
+curveplot(c)                                       # studio skin (default)
+curveplot(c; skin=:designer)
+curveplot(c; vertex_color=:curvature, colormap=:plasma)
+curveplot(c; vertex_labels=:latex, curve_name=&quot;\\gamma&quot;)
+curveplot(c) + vectorplot(normals(c); anchors=c)
+
+plot_flow_evolution(r; nframes=9)
+flow_slider(r)                                     # interactive
+animate_flow(r; filename=&quot;flow.gif&quot;, fps=30)</code></pre><h2 id="Key-concepts"><a class="docs-heading-anchor" href="#Key-concepts">Key concepts</a><a id="Key-concepts-1"></a><a class="docs-heading-anchor-permalink" href="#Key-concepts" title="Permalink"></a></h2><h3 id="σ-vs-τ"><a class="docs-heading-anchor" href="#σ-vs-τ">σ vs τ</a><a id="σ-vs-τ-1"></a><a class="docs-heading-anchor-permalink" href="#σ-vs-τ" title="Permalink"></a></h3><ul><li><strong>τ</strong> (tau): the <em>physical timestep</em> — how far forward in time each Euler step moves. Too large → numerical blow-up. Auto-CFL selects <code>τ = 0.25 × min_edge²</code>.</li><li><strong>σ</strong> (sigma): the <em>step index</em> — an integer counting how many Euler steps ran. <code>r[σ]</code> returns the curve after σ steps. Physical time = Σ τₖ ≈ σ·τ.</li></ul><h3 id="Curvature-models"><a class="docs-heading-anchor" href="#Curvature-models">Curvature models</a><a id="Curvature-models-1"></a><a class="docs-heading-anchor-permalink" href="#Curvature-models" title="Permalink"></a></h3><p>Four models from Crane &amp; Wardetzky (2017):</p><table><tr><th style="text-align: right">Symbol</th><th style="text-align: right">Julia type</th><th style="text-align: right">Formula</th><th style="text-align: right">Flow property</th></tr><tr><td style="text-align: right">κᴬ</td><td style="text-align: right"><code>TurningAngle()</code></td><td style="text-align: right">θᵢ/ℓ̄ᵢ</td><td style="text-align: right">Preserves total curvature</td></tr><tr><td style="text-align: right">κᴮ</td><td style="text-align: right"><code>SteinerCurvature()</code></td><td style="text-align: right">2sin(θ/2)/ℓ̄</td><td style="text-align: right">Preserves centre of mass</td></tr><tr><td style="text-align: right">κᶜ</td><td style="text-align: right"><code>TangentCurvature()</code></td><td style="text-align: right">2tan(θ/2)/ℓ̄</td><td style="text-align: right">Kirchhoff analogy</td></tr><tr><td style="text-align: right">κᴰ</td><td style="text-align: right"><code>OsculatingCircle()</code></td><td style="text-align: right">2sin(θ)/w = 1/R</td><td style="text-align: right">Circles are fixed points</td></tr></table><h3 id="Colour-specifications"><a class="docs-heading-anchor" href="#Colour-specifications">Colour specifications</a><a id="Colour-specifications-1"></a><a class="docs-heading-anchor-permalink" href="#Colour-specifications" title="Permalink"></a></h3><p>Any plotting kwarg accepting a colour also accepts:</p><ul><li><code>:curvature</code>, <code>:arc_length</code>, <code>:radius</code>, <code>:vertex_index</code> — built-in metrics</li><li><code>:gradient</code> — smooth gradient along arc length</li><li><code>(:curvature, :viridis)</code> — metric + colormap</li><li><code>Function(c, i) → Real</code> — custom per-vertex scalar</li><li><code>Vector{Real}</code> — explicit scalars per vertex</li></ul></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="index.html">« Home</a><a class="docs-footer-nextpage" href="mathematics.html">Mathematics »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 17 April 2026 20:06">Friday 17 April 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

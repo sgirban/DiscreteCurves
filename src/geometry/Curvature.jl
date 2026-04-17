@@ -3,7 +3,7 @@ module Curvature
     using StaticArrays
     using ..AbstractTypes, ..CurveTypes, ..CurveTopology, ..Iterators
 
-    export curvature, curvatures, curvature_vector, turning_angle, turning_angles, CustomCurvature, TurningAngle, OsculatingCircle, TangentCurvature, SteinerCurvature, LengthWeightedCurvature, SignedCurvature2D
+    export curvature, curvatures, curvature_vector, curvature_vectors, turning_angle, turning_angles, CustomCurvature, TurningAngle, OsculatingCircle, TangentCurvature, SteinerCurvature, LengthWeightedCurvature, SignedCurvature2D
 
 """κ = θ / ℓ̄  — turning angle divided by mean half-length."""
 struct TurningAngle end
