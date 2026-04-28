@@ -11,7 +11,7 @@ makedocs(;
     format   = Documenter.HTML(;
         prettyurls    = get(ENV, "CI", nothing) == "true",
         canonical     = "https://sgirban.github.io/DiscreteCurves.jl",
-        edit_link     = "main",
+        edit_link     = "master",
         assets        = String[],
     ),
     pages = [
