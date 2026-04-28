@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1.12'
+          version: '1.10'
       - uses: julia-actions/julia-buildpkg@v1
       - run: julia --project=docs -e 'using Pkg; Pkg.instantiate(); include("docs/make.jl")'
         env:
