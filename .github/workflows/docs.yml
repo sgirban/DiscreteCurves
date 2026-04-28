@@ -24,7 +24,7 @@ jobs:
         with:
           version: '1.10'
       - uses: julia-actions/julia-buildpkg@v1
-      - run: julia --project=docs -e 'using Pkg; Pkg.instantiate(); include("docs/make.jl")'
+      - run: julia --project=docs -e 'using Pkg; Pkg.resolve(); Pkg.instantiate(); include("docs/make.jl")'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload artifact
