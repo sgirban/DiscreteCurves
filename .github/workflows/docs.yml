@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: rm -rf ~/.julia/compiled
+      - run: rm -rf ~/.julia/compiled Manifest.toml docs/Manifest.toml
         shell: bash
       - uses: julia-actions/setup-julia@v1
         with:
