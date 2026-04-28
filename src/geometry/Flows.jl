@@ -38,7 +38,6 @@ CurvatureFlow(model=SteinerCurvature(); tangential::Bool=false) =
     CurvatureFlow{typeof(model)}(model, tangential)
 """
     PointwiseFlow(f)
- 
 Flow where `f(curve, i) → SVector{N,T}` gives the velocity at vertex `i`.
 `f` receives the full curve, so it may reference any vertex or global quantity.
  
