@@ -20,9 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: rm -rf ~/.julia/compiled
+        shell: bash
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1.12'
+          version: '1.11'
       - run: julia --project=docs -e 'using Pkg; Pkg.instantiate(); include("docs/make.jl")'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
