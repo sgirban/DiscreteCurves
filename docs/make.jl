@@ -22,9 +22,3 @@ makedocs(;
     checkdocs = :exports,
     warnonly  = true,
 )
-
-deploydocs(;
-    repo   = "github.com/sgirban/DiscreteCurves.jl",
-    branch = "gh-pages",
-    devbranch = "main",
-)
