@@ -24,7 +24,6 @@ jobs:
         with:
           version: '1.12'
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-docdeps@v1
       - run: julia --project=docs -e 'using Pkg; Pkg.instantiate(); include("docs/make.jl")'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
