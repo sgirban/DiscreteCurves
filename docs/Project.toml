@@ -1,5 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterTools = "35a29f4d-7e38-4f39-a14e-d27d339f7116"
 DiscreteCurves = { path = ".." }
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
