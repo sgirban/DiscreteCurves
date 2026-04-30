@@ -1,9 +1,9 @@
 module GeometricProperties
     using LinearAlgebra
     using StaticArrays
-    using ..AbstractTypes, ..CurveTypes, ..CurveTopology, ..Iterators
+    using ..AbstractTypes, ..CurveTypes, ..CurveTopology, ..Iterators, ..Lengths, ..Orientation
 
-    export signed_area, centroid
+    export signed_area, centroid, isoperimetric_quotient, regular_isoperimetric_quotient
 
     """
         signed_area(c::AbstractDiscreteCurve{2,T})  →  T
@@ -28,7 +28,6 @@ module GeometricProperties
         area = zero(T)
         
         if isclosed(c)
-            # Closed curve: standard shoelace formula
             @inbounds for i in 1:n
                 p = c.points[i]
                 q = c.points[mod1(i+1, n)]
@@ -59,6 +58,31 @@ module GeometricProperties
     function centroid(c::AbstractDiscreteCurve{N,T}) where {N, T}
         !isclosed(c) && error("centroid requires a closed curve")
         sum(c.points) / nvertices(c)
+    end
+
+    """
+        isoperimetric_quotient(c::AbstractDiscreteCurve{N,T})  →  T
+
+    Compute the isoperimetric quotient of a closed curve.
+    
+    ```julia
+    c = random_convex_polygon(8)
+    q = isoperimetric_quotient(c)
+    println("Isoperimetric quotient: $q")
+    ```
+    """
+    function isoperimetric_quotient(c::AbstractDiscreteCurve{N,T}) where {N,T}
+        A = abs(signed_area(c))
+        L = arc_length(c)
+        A > 0 && L > 0 ? (4 * π * A) / (L^2) : zero(T)
+    end
+
+    function regular_isoperimetric_quotient(n::Int)
+       return π /n * cot(π/n)
+    end
+    function regular_isoperimetric_quotient(c::AbstractDiscreteCurve{N,T}) where {N,T}
+       n = nvertices(c)
+       return regular_isoperimetric_quotient(n)
     end
 
 end

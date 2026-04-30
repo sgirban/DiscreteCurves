@@ -8,14 +8,14 @@ using Random
 
 Random.seed!(1234)
 
-c0 = random_convex_polygon(19; radius=1.0, irregularity=0.0, spikiness=0.3, T=Float64)
+c0 = random_convex_polygon(16; radius=1.0, irregularity=1.0, spikiness=0.5, T=Float64)
 
 c0 = orient(c0, to = CW)
 # Evolve under curve shortening with Steiner curvature
-r = evolve(c0, CurvatureFlow(SteinerCurvature(),tangential=true);
+r = evolve(c0, CurvatureFlow(SteinerCurvature());
            nsteps=300,
            cfl_safety=1,
-           save_every=30,
+           save_every=10,
            track=[:L => arc_length])
 
 # Collect curves: start + saved snapshots
@@ -32,4 +32,8 @@ fig = curveplot(curves;
 
 # cf = curveplot(c0; curve_color=:red, curve_width=3.0, vertex_visible=true, label="Initial curve")
 save_figure("visualize_csf2.png", fig)
+print("Length variation during evolution:\n")
+# for l in r[:L]
+#     println("  L = $l")
+# end
 #println("Saved plot to visualize_csf.png")
