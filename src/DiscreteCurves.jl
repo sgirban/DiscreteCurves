@@ -23,20 +23,17 @@ using .CurveData
 include("Macros.jl")
 using .Macros
 
+include("geometry/Lengths.jl");
+using .Lengths
 
 include("geometry/GeometricProperties.jl")
 using .GeometricProperties
 
-
 include("geometry/Orientation.jl")
 using .Orientation
 
-
 include("geometry/CurveVectors.jl")
 using .CurveVectors
-
-include("geometry/Lengths.jl");
-using .Lengths
 include("geometry/Curvature.jl");
 using .Curvature
 include("geometry/Generators.jl");
