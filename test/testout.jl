@@ -12,6 +12,7 @@ c = fourier_curve(10,roughness = 1.0,radius = 5.0)
 println("Curve points: ", c.points)
 kws= curvature_vectors(c)
 kws = -1 .* curvature_vectors(c)
-curveplot(c, tooltip = [:curvature, :turning_angle], 
+f= curveplot(c, tooltip = [:curvature, :turning_angle], 
          skin=:studio) +
          vectorplot(kws; anchors=c, arrow_color=:orange, normalize=false,lengthscale=3.0)
+save_figure("testout.png", f)

@@ -728,7 +728,7 @@ function _perlin_1d_periodic(table, x::T) where T<:AbstractFloat
 end
  
 function _seeded_rng(seed::Int)
-    seed == 0 ? MersenneTwister() : MersenneTwister(seed)
+    seed == 0 ? Random.default_rng() : MersenneTwister(seed)
 end
  
 function _sample_closed(f, n::Int, ::Type{T}, t0::Real=0.0, t1::Real=2π) where T

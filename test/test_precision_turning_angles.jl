@@ -6,6 +6,7 @@ using DiscreteCurves
 using LinearAlgebra
 using StaticArrays
 using Random
+using Statistics
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Test 1: Circle with different precisions
@@ -155,7 +156,7 @@ c = ClosedCurve(points)
 println("\nCircle (unit circle has κ = 1 everywhere):")
 
 try
-    κ_turning = curvature(c, TurningAngle())
+    κ_turning = curvatures(c, TurningAngle())
     println("  TurningAngle mean κ:       $(mean(κ_turning))")
     println("  Expected (≈ 1):            1.0")
 catch e
@@ -163,7 +164,7 @@ catch e
 end
 
 try
-    κ_signed = curvature(c, SignedCurvature2D())
+    κ_signed = curvatures(c, SignedCurvature2D())
     println("  SignedCurvature2D mean κ:  $(mean(κ_signed))")
     println("  Angles sum to:             $(sum(turning_angles(c; signed=true)))")
     println("  Expected (≈ 2π):           $(2π)")
@@ -172,7 +173,7 @@ catch e
 end
 
 try
-    κ_steiner = curvature(c, SteinerCurvature())
+    κ_steiner = curvatures(c, SteinerCurvature())
     println("  SteinerCurvature mean κ:   $(mean(κ_steiner))")
 catch e
     println("  ERROR: $e")

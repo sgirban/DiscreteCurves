@@ -89,7 +89,7 @@ Base.eltype(::Type{<:AbstractDiscreteCurve{N,T}}) where {N,T} = SVector{N,T}
 
 @inline Base.getindex(c::AbstractDiscreteCurve, i::Int) = vertex(c, i)
 
-Base.iterate(c::AbstractDiscreteCurve) =
+Base.iterate(c::AbstractDiscreteCurve,i::Int=1) =
     i > nvertices(c) ? nothing : (vertex(c, i), i + 1)
 Base.firstindex(c::AbstractDiscreteCurve) = 1
 Base.lastindex(c::AbstractDiscreteCurve) = nvertices(c)

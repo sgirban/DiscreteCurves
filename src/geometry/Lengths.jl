@@ -61,6 +61,7 @@ function cumulative_length(c::AbstractDiscreteCurve{N,T}) where {N,T}
     s  = Vector{T}(undef, n)
     s[1] = zero(T)
     @inbounds for (i, (; src, dst)) in enumerate(edges(c))
+        i >= n && break
         s[i+1] = s[i] + _edge_length(src, dst)
     end
     s

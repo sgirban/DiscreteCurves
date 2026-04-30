@@ -1,7 +1,7 @@
 module AbstractTypes
 
-export AbstractDiscreteCurve, TopologyTrait, ClosedTopology, OpenTopology, StorageTrait, DenseStorage, SparseStorage, CurvatureTrait, HasCurvatureData, NoCurvatureData
-export topology_trait, is_closed_topology, is_open_topology, storage_trait, curvature_trait
+export AbstractDiscreteCurve, TopologyTrait, ClosedTopology, OpenTopology, StorageTrait, DenseStorage, SparseStorage, CurvatureTrait, HasCurvatureData, NoCurvatureData, OrientationTrait, HasOrientationData, NoOrientationData
+export topology_trait, is_closed_topology, is_open_topology, storage_trait, curvature_trait, orientation_trait
 
 abstract type AbstractDiscreteCurve{N, T <: AbstractFloat} end
 
@@ -26,4 +26,11 @@ struct HasCurvatureData <: CurvatureTrait end
 struct NoCurvatureData <: CurvatureTrait end
 
 curvature_trait(::AbstractDiscreteCurve) = NoCurvatureData()
+
+abstract type OrientationTrait end
+struct HasOrientationData <: OrientationTrait end
+struct NoOrientationData <: OrientationTrait end
+
+orientation_trait(::AbstractDiscreteCurve) = NoOrientationData()
+
 end

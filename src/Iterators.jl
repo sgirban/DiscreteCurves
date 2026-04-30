@@ -52,7 +52,7 @@ edge_list = collect(edges(c))
 
 Base.length(it::EdgeIterator) = nedges(it.curve)
 Base.eltype(::EdgeIterator{C}) where {C<:AbstractDiscreteCurve{N,T}} where {N,T} = 
-    @NamedTuple{src::Svector{N,T}, dst::SVector{N,T}}
+    @NamedTuple{src::SVector{N,T}, dst::SVector{N,T}}
 
 function Base.iterate(it::EdgeIterator, state=1) 
     state > nedges(it.curve) && return nothing
