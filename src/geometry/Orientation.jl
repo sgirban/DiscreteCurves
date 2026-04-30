@@ -4,11 +4,11 @@ module Orientation
     using ..AbstractTypes, ..CurveTypes, ..CurveTopology
     using ..GeometricProperties
 
-    export Orientation, CCW, CW, CounterClockwise, Clockwise
+    export CurveOrientation, CCW, CW, CounterClockwise, Clockwise
     export orient, orient!, is_ccw, is_cw
 
     """
-        Orientation
+        CurveOrientation
 
     Enum for curve orientation:
     - `CCW`: Counter-clockwise (left-turn positive)
@@ -22,7 +22,7 @@ module Orientation
     - CCW: signed area > 0
     - CW: signed area < 0
     """
-    @enum Orientation CCW CW
+    @enum CurveOrientation CCW CW
 
     const CounterClockwise = CCW
     const Clockwise = CW
@@ -64,7 +64,7 @@ module Orientation
     c_cw = orient(c; to=CW)
     ```
     """
-    function orient(c::AbstractDiscreteCurve{2}; to::Orientation=CCW)
+    function orient(c::AbstractDiscreteCurve{2}; to::CurveOrientation=CCW)
         !isclosed(c) && error("orient requires a closed curve")
         
         current_orientation = is_ccw(c) ? CCW : CW
@@ -85,7 +85,7 @@ module Orientation
     orient!(c; to=CCW)
     ```
     """
-    function orient!(c::DiscreteCurve{2}; to::Orientation=CCW)
+    function orient!(c::DiscreteCurve{2}; to::CurveOrientation=CCW)
         !isclosed(c) && error("orient! requires a closed curve")
         
         current_orientation = is_ccw(c) ? CCW : CW

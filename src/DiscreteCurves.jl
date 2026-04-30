@@ -58,8 +58,8 @@ export inward_normal, outward_normal, inward_normals, outward_normals
 export signed_area, centroid
 export turning_angle, turning_angles, curvature, curvatures, curvature_vector, curvature_vectors
 export TurningAngle, OsculatingCircle, TangentCurvature, SteinerCurvature, LengthWeightedCurvature, SignedCurvature2D, CustomCurvature
-export CCW, CW, CounterClockwise, Clockwise, orient, orient!, is_ccw, is_cw
-
+export CurveOrientation,CCW, CW, CounterClockwise, Clockwise, orient, orient!, is_ccw, is_cw
+export regular_isoperimetric_quotient, isoperimetric_quotient
 export regular_polygon, inscribed_polygon, circle_curve, ellipse_curve, rectangle_curve,
 	square_curve, triangle_curve, equilateral_triangle, right_triangle,
 	parallelogram_curve, rhombus_curve, star_curve,
