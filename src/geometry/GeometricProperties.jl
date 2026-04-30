@@ -1,7 +1,7 @@
 module GeometricProperties
     using LinearAlgebra
     using StaticArrays
-    using ..AbstractTypes, ..CurveTypes, ..CurveTopology, ..Iterators, ..Lengths, ..Orientation
+    using ..AbstractTypes, ..CurveTypes, ..CurveTopology, ..Iterators, ..Lengths
 
     export signed_area, centroid, isoperimetric_quotient, regular_isoperimetric_quotient
 
