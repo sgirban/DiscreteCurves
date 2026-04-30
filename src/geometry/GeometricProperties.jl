@@ -60,17 +60,6 @@ module GeometricProperties
         sum(c.points) / nvertices(c)
     end
 
-    """
-        isoperimetric_quotient(c::AbstractDiscreteCurve{N,T})  →  T
-
-    Compute the isoperimetric quotient of a closed curve.
-    
-    ```julia
-    c = random_convex_polygon(8)
-    q = isoperimetric_quotient(c)
-    println("Isoperimetric quotient: $q")
-    ```
-    """
     function isoperimetric_quotient(c::AbstractDiscreteCurve{N,T}) where {N,T}
         A = abs(signed_area(c))
         L = arc_length(c)
@@ -80,9 +69,7 @@ module GeometricProperties
     function regular_isoperimetric_quotient(n::Int)
        return π /n * cot(π/n)
     end
-    function regular_isoperimetric_quotient(c::AbstractDiscreteCurve{N,T}) where {N,T}
-       n = nvertices(c)
-       return regular_isoperimetric_quotient(n)
-    end
+    
+    regular_isoperimetric_quotient(c::AbstractDiscreteCurve{N,T}) where {N,T} = regular_isoperimetric_quotient(nvertices(c))
 
 end
