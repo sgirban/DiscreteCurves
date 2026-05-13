@@ -10,6 +10,7 @@ include("CurveTopology.jl"); using .CurveTopology
 include("Iterators.jl"); using .Iterators
 include("CurveData.jl"); using .CurveData
 include("Macros.jl"); using .Macros
+include("utils/CurveIO.jl"); using .CurveIO
 include("geometry/Lengths.jl");using .Lengths
 include("geometry/GeometricProperties.jl"); using .GeometricProperties
 include("geometry/Orientation.jl"); using .Orientation
@@ -18,6 +19,9 @@ include("geometry/Curvature.jl"); using .Curvature
 include("geometry/Generators.jl");using .Generators
 include("geometry/Flows.jl");using .Flows
 include("graphics/Graphics.jl");using .Graphics
+
+
+
 
 # ── Public API exports ─────────────────────────────────────────────────────────
 export DiscreteCurve, ClosedCurve, OpenCurve, ParametricCurve
@@ -57,4 +61,7 @@ export compute_velocities!, cfl_timestep, FlowResult, evolve, evolve_step!
 export curve_shortening_flow
 export curveplot, curveplot!, vectorplot, vectorplot!, save_figure,
        @curveplot, @vectorplot
+
+export curve_info, save_curves, load_curves, save_curve, load_curve 
+
 end
