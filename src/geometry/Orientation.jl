@@ -3,9 +3,9 @@ module Orientation
     using StaticArrays
     using ..AbstractTypes, ..CurveTypes, ..CurveTopology
     using ..GeometricProperties
-
     export CurveOrientation, CCW, CW, CounterClockwise, Clockwise
     export orient, orient!, is_ccw, is_cw
+    
 
     """
         CurveOrientation

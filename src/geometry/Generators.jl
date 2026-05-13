@@ -732,7 +732,6 @@ function _seeded_rng(seed::Int)
 end
  
 function _sample_closed(f, n::Int, ::Type{T}, t0::Real=0.0, t1::Real=2π) where T
-    ts  = range(T(t0), T(t1); length=n+1)[1:n]
-    ClosedCurve([SVector{2,T}(f(t)) for t in ts])
+    _sample_closed(f, n, t0, t1, T)
 end
 end

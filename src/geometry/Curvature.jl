@@ -204,12 +204,11 @@ end
     n
 end
 
-# canonical unit-difference vector (unnormalised)
 @inline function _tangent_diff(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}) where {N,T}
     d1 = q - p; d2 = r - q
     n1 = norm(d1); n2 = norm(d2)
     (n1 < eps(T) || n2 < eps(T)) && return zero(SVector{N,T})
-    d1/n1 - d2/n2
+    d2/n2 - d1/n1   
 end
 @inline function _kn_B(p::SVector{N,T}, q::SVector{N,T}, r::SVector{N,T}, ::SteinerCurvature) where {N,T}
     _tangent_diff(p,q,r)

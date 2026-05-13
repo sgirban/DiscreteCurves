@@ -198,61 +198,66 @@ module CurveVectors
 
 
     """
-        inward_normal(c, i)  →  SVector{N,T}
+        inward_normal(c, i)  →  SVector{2,T}
 
-    Unit inward (toward-interior) normal at vertex `i`.
+    Unit inward (toward-interior) normal at vertex `i` of a 2D closed curve.
 
-    Defined as `normalize(tₒᵤₜ - tᵢₙ)`, with orientation correction applied:
-    - **CCW orientation:** returns `normalize(tₒᵤₜ - tᵢₙ)` directly.
-    - **CW orientation:** returns `-normalize(tₒᵤₜ - tᵢₙ)` to flip the sign.
-    - **Result:** Always points toward the interior, regardless of orientation.
+    Defined as `N = normalize(t_out - t_in)` where `t_in` and `t_out` are the
+    unit tangents of the incoming and outgoing edges.
 
+    **Mathematical property:** For any simple closed curve, regardless of orientation
+    (CCW or CW), this formula gives a vector pointing toward the interior of the curve.
+
+    - **Convex vertices:** Normal points toward the center of curvature (always inward).
+    - **Reflex vertices:** Normal may point differently; use `is_reflex_vertex(c, i)`
+      to detect and handle specially if needed.
 
     Throws `ArgumentError` for open curves.
 
+    # Example
     ```julia
     c = circle_curve(128)
 
     # All inward normals point toward the origin on a unit circle
     @assert all(norm(inward_normal(c,i) + vertex(c,i)) < 1e-10 for i in 1:nvertices(c))
-
-    # Consistent with curvature vector direction (parallel, positive dot product)
-    κvs = curvature_vectors(c)
-    ns  = inward_normals(c)
-    @assert all(dot(κvs[k], ns[k]) ≥ 0 for k in eachindex(ns))
     ```
     """
-    function inward_normal(c::AbstractDiscreteCurve{N,T}, i::Int) where {N,T}
+    function inward_normal(c::AbstractDiscreteCurve{2,T}, i::Int) where {T}
         isclosed(c) || throw(ArgumentError(
         "inward_normal requires a closed curve (got an open curve). " *
-        "For open curves use normal_vector, left_normal_vector, or right_normal_vector."))
+        "For open curves use normal_vector instead."))
+        
         n      = nvertices(c)
         t_in   = edge_tangent(c, mod1(i - 1, n))
         t_out  = edge_tangent(c, i)
-        normal = _unit(t_out - t_in)
-        return normal
+        
+        # Normal vector: t_out - t_in always points inward for convex vertices
+        return _unit(t_out - t_in)
     end
 
     """
-        outward_normal(c, i)  →  SVector{N,T}
+        outward_normal(c, i)  →  SVector{2,T}
 
-    Unit outward (away-from-interior) normal at vertex `i`: `−inward_normal(c, i)`.
+    Unit outward (away-from-interior) normal at vertex `i` of a 2D closed curve.
 
-    Orientation-independent. Throws `ArgumentError` for open curves.
+    Defined as the negation of `inward_normal(c, i)`. Always points away from
+    the interior, consistently with the curve's inward normal definition.
+
+    Orientation-independent (like `inward_normal`). Throws `ArgumentError` for open curves.
     """
-    function outward_normal(c::AbstractDiscreteCurve{N,T}, i::Int) where {N,T}
+    function outward_normal(c::AbstractDiscreteCurve{2,T}, i::Int) where {T}
         -inward_normal(c, i)
     end
 
     """
-        inward_normals(c)  →  Vector{SVector{N,T}}
+        inward_normals(c)  →  Vector{SVector{2,T}}
 
-    All `nvertices(c)` inward unit normals (closed curve required).
+    All `nvertices(c)` inward unit normals for a 2D closed curve.
     """
-    function inward_normals(c::AbstractDiscreteCurve{N,T}) where {N,T}
+    function inward_normals(c::AbstractDiscreteCurve{2,T}) where {T}
         isclosed(c) || throw(ArgumentError("inward_normals requires a closed curve"))
         nv  = nvertices(c)
-        out = Vector{SVector{N,T}}(undef, nv)
+        out = Vector{SVector{2,T}}(undef, nv)
         @inbounds for i in 1:nv
             out[i] = inward_normal(c, i)
         end
@@ -260,14 +265,14 @@ module CurveVectors
     end
 
     """
-        outward_normals(c)  →  Vector{SVector{N,T}}
+        outward_normals(c)  →  Vector{SVector{2,T}}
 
-    All `nvertices(c)` outward unit normals (closed curve required).
+    All `nvertices(c)` outward unit normals for a 2D closed curve.
     """
-    function outward_normals(c::AbstractDiscreteCurve{N,T}) where {N,T}
+    function outward_normals(c::AbstractDiscreteCurve{2,T}) where {T}
         isclosed(c) || throw(ArgumentError("outward_normals requires a closed curve"))
         nv  = nvertices(c)
-        out = Vector{SVector{N,T}}(undef, nv)
+        out = Vector{SVector{2,T}}(undef, nv)
         @inbounds for i in 1:nv
             out[i] = -inward_normal(c, i)
         end

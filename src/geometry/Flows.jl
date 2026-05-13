@@ -14,6 +14,7 @@ export compute_velocities!
 export cfl_timestep
 export FlowResult, evolve, evolve_step!
 export curve_shortening_flow
+export resample, resample!
 
 """
 	CurvatureFlow(model=SteinerCurvature(); tangential=false)
@@ -639,6 +640,70 @@ curve_shortening_flow(c; save_every=10, track=[:L=>arc_length])
 function curve_shortening_flow(c, model=SteinerCurvature();
                                 tangential::Bool=false, kw...)
     evolve(c, CurvatureFlow(model; tangential); kw...)
+end
+
+"""
+    resample(c, n; closed=isclosed(c))  →  DiscreteCurve
+
+Return a new curve with `n` vertices uniformly spaced in arc-length.
+Uses piecewise-linear interpolation along the original polyline.
+
+```julia
+c2 = resample(c, 256)          # same topology
+c2 = resample(c, 64; closed=false)
+```
+"""
+function resample(c::AbstractDiscreteCurve{N,T}, n::Int;
+                  closed::Bool = isclosed(c)) where {N,T}
+    n ≥ 2 || throw(ArgumentError("n must be ≥ 2, got $n"))
+    pts  = c.points
+    m    = nvertices(c)
+
+    # Build cumulative length table
+    s = Vector{T}(undef, m + (closed ? 1 : 0))
+    s[1] = zero(T)
+    @inbounds for i in 1:(m - 1)
+        s[i+1] = s[i] + norm(pts[i+1] - pts[i])
+    end
+    if closed
+        s[m+1] = s[m] + norm(pts[1] - pts[m])
+    end
+    L = s[end]
+    L > eps(T) || throw(ArgumentError("Curve has zero arc length — cannot resample."))
+
+    # Target arc-length positions
+    step  = closed ? L / n : L / (n - 1)
+    out   = Vector{SVector{N,T}}(undef, n)
+    j     = 1
+    @inbounds for k in 0:(n-1)
+        sk = k * step
+        # advance segment pointer
+        while j < length(s) - 1 && s[j+1] < sk
+            j += 1
+        end
+        # linear interpolation within segment
+        seg_len = s[j+1] - s[j]
+        α = seg_len > eps(T) ? (sk - s[j]) / seg_len : zero(T)
+        p_src = pts[mod1(j,   m)]
+        p_dst = pts[mod1(j+1, m)]
+        out[k+1] = p_src + T(α) * (p_dst - p_src)
+    end
+    DiscreteCurve{N,T}(out, closed)
+end
+
+"""
+    resample!(c, n)  →  DiscreteCurve
+
+In-place version: replaces `c.points` content. Returns `c` for chaining.
+Only valid when `length(c.points) == n`; otherwise allocates and returns a new curve.
+"""
+function resample!(c::DiscreteCurve{N,T}, n::Int) where {N,T}
+    c2 = resample(c, n; closed = isclosed(c))
+    if nvertices(c) == n
+        copyto!(c.points, c2.points)
+        return c
+    end
+    c2
 end
 
 # ─────────────────────────────────────────────────────────────────────────────

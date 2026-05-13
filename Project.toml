@@ -12,16 +12,19 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 [weakdeps]
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 
 [extensions]
 DiscreteCurvesMakieExt = "Makie"
 DiscreteCurvesPlotExt = "Plots"
+DiscreteCurvesCUDAExt = "CUDA"
 
 [compat]
 StaticArrays = "1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f2afa"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [targets]
-test = ["Test"]
+test = ["Test", "Statistics"]
