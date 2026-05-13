@@ -5,10 +5,9 @@ module CurveVectors
 
     export edge_tangent, edge_normal, edge_tangents, edge_normals
     export tangent_vector, tangent_vectors
-    export normal_vector, normal_vectors
+    export normal_vector, normals
     export inward_normal, outward_normal
     export inward_normals, outward_normals
-
 
     @inline function _unit(v::SVector{N,T}) where {N,T}
         n = norm(v)
@@ -162,7 +161,7 @@ module CurveVectors
     # normal_vector and curvature_vector are parallel (same direction) for any
     # smooth convex curve, regardless of orientation:
     κvs = curvature_vectors(c)
-    ns  = normal_vectors(c)
+    ns  = normals(c)
     @assert all(dot(κvs[i], ns[i]) ≥ -1e-12 for i in eachindex(ns))
     ```
     """
@@ -182,12 +181,12 @@ module CurveVectors
     end
 
     """
-        normal_vectors(c)  →  Vector{SVector{N,T}}
+        normals(c)  →  Vector{SVector{N,T}}
 
     All `nvertices(c)` vertex normals.  Each vector points toward the concave (inward)
     side; see [`normal_vector`](@ref).
     """
-    function normal_vectors(c::AbstractDiscreteCurve{N,T}) where {N,T}
+    function normals(c::AbstractDiscreteCurve{N,T}) where {N,T}
         nv  = nvertices(c)
         out = Vector{SVector{N,T}}(undef, nv)
         @inbounds for i in 1:nv

@@ -120,20 +120,13 @@ end
  
 Axis-aligned rectangle with `n` total vertices distributed proportionally.
 """
-function rectangle_curve(;
-                          width  :: Real  = 2.0,
-                          height :: Real  = 1.0,
-                          center         = SVector(0.0,0.0),
-                          angle  :: Real  = 0.0,
-                          n      :: Int   = 64,
-                          T      :: Type{<:AbstractFloat} = Float64)
+function rectangle_curve(; width=2.0, height=1.0, center=SVector(0.0,0.0),
+                          angle=0.0, n=64, T=Float64)
     w, h   = T(width)/2, T(height)/2
     perim  = 2*(width + height)
     n_h = max(2, round(Int, n * width / perim))
     n_v = max(2, round(Int, n * height / perim))
- 
-    pts = SVector{2,T}[]
-    for x in range(-w, w; length=n_h+1)[1:end-1]; push!(pts, SVector(-w+x+w, -h)); end  # nope
+    
     pts = SVector{2,T}[]
     for x in range(-w,  w; length=n_h+1)[1:end-1]; push!(pts, SVector{2,T}( x, -h)); end
     for y in range(-h,  h; length=n_v+1)[1:end-1]; push!(pts, SVector{2,T}( w,  y)); end

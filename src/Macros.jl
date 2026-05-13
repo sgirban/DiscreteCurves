@@ -31,7 +31,6 @@ c = @curve (r*cos(θ), r*sin(θ)) θ ∈ 0..2π  n=64  closed
 ```
 """
 macro curve(expr,range_expr,opts...)
-    #  var ∈ t0..t1
     (range_expr.head == :call && 
         (range_expr.args[1] == :∈ || range_expr.args[1] == :in)) || 
         error("Expected range expression of the form `var ∈ t0..t1`,got $range_expr")
@@ -54,25 +53,24 @@ macro curve(expr,range_expr,opts...)
         end
     end
     sv_expr = _expr_to_svector(expr,var)
-    quote
+    # quote
+    #     ParametricCurve($var -> $sv_expr, $t0, $t1, $n_val; closed=$closed_val)
+    # end
+    return esc(quote
         ParametricCurve($var -> $sv_expr, $t0, $t1, $n_val; closed=$closed_val)
-    end
+    end)
 end
 function _expr_to_svector(expr, var)
     if expr.head == :tuple
-        # (cos(t), sin(t)) → SVector(cos(t), sin(t))
         N = length(expr.args)
         :( StaticArrays.SVector{$N}($(expr.args...)) )
     elseif expr.head == :vect
-        # [cos(t), sin(t)] → SVector(cos(t), sin(t))
         N = length(expr.args)
         :( StaticArrays.SVector{$N}($(expr.args...)) )
     elseif expr.head == :call && expr.args[1] == :SVector
-        # Already SVector(...)  — pass through unchanged
-        expr
+        esc(expr)
     else
-        # Single expression — assume 1D
-        :( StaticArrays.SVector{1}($expr) )
+        :( StaticArrays.SVector{1}($(esc(expr))) )
     end
 end
 
@@ -130,11 +128,14 @@ macro all_vertices(curve_expr, var, pred_expr)
 end
 
 macro map_verts(curve_expr, var, expr)
+    _c = gensym("c")
+    _p = gensym("p")
     quote
-        let _c = $(esc(curve_expr))
+        let $(_c) = $(esc(curve_expr))
             DiscreteCurve(
-                [let $var = p; $expr; end for p in vertices(_c)];
-                closed = isclosed(_c))
+                [let $(esc(var)) = $(_p); $(esc(expr)); end
+                 for $(_p) in vertices($(_c))];
+                closed = isclosed($(_c)))
         end
     end
 end

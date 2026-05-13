@@ -72,7 +72,7 @@ module GeometricProperties
         end
         lo, hi
     end
-    function isoperimetric_quotient(c::AbstractDiscreteCurve{N,T}) where {N,T}
+    function isoperimetric_quotient(c::AbstractDiscreteCurve{2,T}) where {T}
         A = abs(signed_area(c))
         L = arc_length(c)
         A > 0 && L > 0 ? (4 * π * A) / (L^2) : zero(T)

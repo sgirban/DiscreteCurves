@@ -67,7 +67,7 @@ struct WindowIterator{k,C<:AbstractDiscreteCurve}
     curve::C
     function WindowIterator{k}(c::C) where {k,C}
         k ≥ 2 || throw(ArgumentError("Window size k must be ≥ 2, got $k"))
-        isodd(k) || throw(ArgumentError("Winow must be cenetred, thus k must be odd, got $k"))
+        isodd(k) || throw(ArgumentError("Window must be centred, thus k must be odd, got $k"))
         new{k,C}(c)
     end
         

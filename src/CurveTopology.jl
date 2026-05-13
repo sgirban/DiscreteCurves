@@ -3,7 +3,6 @@ module CurveTopology
 using StaticArrays
 using ..AbstractTypes
 using ..CurveTypes
-
 export isclosed, isopen, nvertices, nedges, vertex, edge_segment
 
 """
@@ -59,8 +58,6 @@ vertex(c, 4)  # same as vertex(c, 1)
 end
  
 @inline function _vertex(::ClosedTopology, c, i)
-    # mod1: maps any integer to 1..n (1-based modular arithmetic)
-    # This is a single CPU instruction when n is a power of 2.
     @inbounds c.points[mod1(i, nvertices(c))]
 end
 # ── Edge access ────────────────────────────────────────────────────────────────

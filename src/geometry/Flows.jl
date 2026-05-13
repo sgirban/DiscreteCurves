@@ -28,7 +28,7 @@ Curvature-driven flow.  Normal velocity: `vᵢ = κᵢ(model) · N̂ᵢ`.
 **`tangential=true`:** adds a tangential velocity component that keeps vertices
   equally spaced along arc length.  This is the *DeTurck trick* (a.k.a.
   arc-length-equalising tangential reparametrisation):
-  - Adds `vᵢᵀ = (ℓᵢ − ℓᵢ₋₁)/(ℓᵢ + ℓᵢ₋₁) · Tᵢ` where Tᵢ is the unit tangent.
+  - Adds `vᵢᵀ = ½(ℓᵢ − ℓᵢ₋₁) · T̂ᵢ` where T̂ᵢ is the unit forward tangent.
   - Does NOT change the geometric shape of the curve (same orbits, different speed).
   - Makes the scheme better conditioned for long flows (no mesh degeneration).
   - Slightly more expensive: one extra normalisation per vertex.
@@ -724,8 +724,7 @@ end
 end
  
 @inline function _tangential_v(d1::SVector{N,T}, d2::SVector{N,T}, n1::T, n2::T) where {N,T}
-    # T̂ = unit forward tangent = d2/n2
-    (iszero(n2)) && return zero(SVector{N,T})
+    (n1 < eps(T) || n2 < eps(T)) && return zero(SVector{N,T})
     (n2 - n1) / 2 * (d2 / n2)
 end
 
